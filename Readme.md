@@ -15,4 +15,4 @@ Luego agregar  "type" : "module" al archivo package.json
 
 ### Para ejecutar:
 
-- npm run start-windows
+- node index.js
