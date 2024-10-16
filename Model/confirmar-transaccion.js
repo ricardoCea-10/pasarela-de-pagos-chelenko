@@ -12,8 +12,27 @@ async function confirmTransaction() {
     const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration));
     const response = await tx.commit(token);
 
-    console.log("Respuesta 2: ", response);
+    console.log("Respuesta 2: ", response); // mostramos datos por consola
+    
+    // si la respuesta es exitosa (aprobada):
+    if (response.response_code == 0) {
+        // Guardamos datos en constantes
+        // código: redireccionar usuario a url WebPay
+        const tokenWs = token;
+        const responseCode = response.response_code;
+        const amount = response.amount;
+        const autorizationCode = response.authorization_code;
+        
+        const theResponse2 = { tokenWs, responseCode, amount, autorizationCode }; // creamos objeto
+        console.log("respuesta 2.1: Transacción aprobada: ", theResponse2);
 
+        return theResponse2;
+
+    } else {
+        // lógica en caso de transacción fallida
+        console.log("Error en la transacción");
+        return null;
+    }
 }
 
 
