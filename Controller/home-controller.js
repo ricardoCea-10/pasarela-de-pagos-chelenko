@@ -32,11 +32,12 @@ function main() {
     confirmTransaction().catch(console.error);
 
     // Ruta para generar la transacción y mostrar el formulario con datos dinámicos
-    app.get('/pagar', async (req, res) => {
+    app.get('/checkout', async (req, res) => {
 
         const theResponse = await createTransaction(); // Llama a tu función para crear la transacción
         // Renderiza el formulario con los datos obtenidos
-        res.render('form', { theResponse }); // 'form.ejs' es el archivo EJS que contiene tu formulario
+        res.render('form', { theResponse }); // 'form.ejs' es el archivo EJS que contiene tu formulario de pruebas
+        // res.status(200).json({theResponse}); // respuesta en formato json
     });
 
 
