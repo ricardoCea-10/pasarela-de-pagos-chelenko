@@ -6,7 +6,7 @@ const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerc
 let buyOrder = "orden123"; // Ejemplo de buyOrder
 let sessionId = "123"; // Ejemplo de sessionId
 let amount = 1000000; // Ejemplo de monto
-let returnUrl = "http://tu-url-de-retorno.com"; // URL de retorno (una vez hecho el pago en transback)
+let returnUrl = "http://localhost:3000/retorno-pago"; // URL de retorno (una vez hecho el pago en transback)
 let finalUrl = "http://tu-url-final.com" // URL (para algo...)
 
 async function createTransaction() {
