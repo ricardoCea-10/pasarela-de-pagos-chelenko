@@ -15,11 +15,11 @@ async function createTransaction() {
     const response = await tx.create(buyOrder, sessionId, amount, returnUrl); // identificador único orden, id sesión, monto transacción, url de retorno después del pago.
 
     // Almacenamos objeto en constantes
-    let tokenWs = response.token;
-    let formAction = response.url; // esta url va en el boton de "ir a pagar" (para redireccionar a transbanck)
+    const tokenWs = response.token;
+    const formAction = response.url; // esta url va en el boton de "ir a pagar" (para redireccionar a transbanck)
 
-    // creamos un objeto con las variables amount, buyOrder tokenWs y formAction
-    let theResponse = { amount, buyOrder, tokenWs, formAction };
+    // creamos un objeto con las constantes amount, buyOrder tokenWs y formAction
+    const theResponse = { amount, buyOrder, tokenWs, formAction };
     console.log("respuesta 1: ", theResponse);
 
     return theResponse;
