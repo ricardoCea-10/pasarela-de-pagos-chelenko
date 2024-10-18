@@ -13,6 +13,8 @@ function main() {
     // Configuración express y puerto
     const app = express();
     const port = 3000;
+    // Configurar EJS como el motor de plantillas
+    app.set('view engine', 'ejs');
 
     // Middleware personalizado (usado en este programa: global)
     const myLogger = function (req, res, next) {
@@ -28,6 +30,14 @@ function main() {
 
     createTransaction().catch(console.error);
     confirmTransaction().catch(console.error);
+
+    // Ruta para generar la transacción y mostrar el formulario con datos dinámicos
+    app.get('/pagar', async (req, res) => {
+
+        const theResponse = await createTransaction(); // Llama a tu función para crear la transacción
+        // Renderiza el formulario con los datos obtenidos
+        res.render('form', { theResponse }); // 'pago.ejs' es el archivo EJS que contiene tu formulario
+    });
 
     // port: puerto en el que se ejecutará el servidor
     // callback: función que se ejecutará cuando el servidor esté listo
