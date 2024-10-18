@@ -27,7 +27,7 @@ function main() {
     app.use(express.json()); // Middleware de Express global (incorporado) para parsear el cuerpo de la petición. Se crea Middleware.
     app.use(myLogger); // Middleware personalizado (de uso global)
 
-
+    // mostramos info por consola de las respuestas de transbanck y datos relevantes
     createTransaction().catch(console.error);
     confirmTransaction().catch(console.error);
 
@@ -36,8 +36,12 @@ function main() {
 
         const theResponse = await createTransaction(); // Llama a tu función para crear la transacción
         // Renderiza el formulario con los datos obtenidos
-        res.render('form', { theResponse }); // 'pago.ejs' es el archivo EJS que contiene tu formulario
+        res.render('form', { theResponse }); // 'form.ejs' es el archivo EJS que contiene tu formulario
     });
+
+
+
+
 
     // port: puerto en el que se ejecutará el servidor
     // callback: función que se ejecutará cuando el servidor esté listo

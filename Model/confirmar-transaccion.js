@@ -18,12 +18,12 @@ async function confirmTransaction() {
     if (response.response_code == 0) {
         // Guardamos datos en constantes
         // código: redireccionar usuario a url WebPay
-        const tokenWs = token;
+        const tokenWs2 = token;
         const responseCode = response.response_code;
         const amount = response.amount;
         const autorizationCode = response.authorization_code;
         
-        const theResponse2 = { tokenWs, responseCode, amount, autorizationCode }; // creamos objeto
+        const theResponse2 = { tokenWs2, responseCode, amount, autorizationCode }; // creamos objeto
         console.log("respuesta 2.1: Transacción aprobada: ", theResponse2);
 
         return theResponse2;
