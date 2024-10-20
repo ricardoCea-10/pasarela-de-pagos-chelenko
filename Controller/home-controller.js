@@ -1,4 +1,3 @@
-
 import prompt from 'prompt-sync';
 import pkg from 'transbank-sdk'; // Transbanck | ES6 Modules
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
@@ -15,6 +14,8 @@ function main() {
     const port = 3000;
     // Configurar EJS como el motor de plantillas
     app.set('view engine', 'ejs');
+
+    app.use(express.static('public'));
 
     // Middleware personalizado (usado en este programa: global)
     const myLogger = function (req, res, next) {
