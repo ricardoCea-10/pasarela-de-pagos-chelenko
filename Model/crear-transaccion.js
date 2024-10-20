@@ -1,28 +1,21 @@
-
-import pkg from 'transbank-sdk'; // Transbanck | ES6 Modules
+import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 
-// Datos de ejemplo para la creación de una transacción
-let buyOrder = "orden123"; // Ejemplo de buyOrder
-let sessionId = "123"; // Ejemplo de sessionId
-let amount = 1000; // Ejemplo de monto
-let returnUrl = "http://tu-url-de-retorno.com"; // URL de retorno (una vez hecho el pago en transback)
-let finalUrl = "http://tu-url-final.com" // URL (para algo...)
+const buyOrder = `orden_${Date.now()}`; // Crear un identificador único
+const sessionId = `sesion_${Date.now()}`;
+const amount = 1000; // Este es el monto que estás cobrando
+const returnUrl = "http://localhost:3000/retorno-pago"; // Esta es la URL a la que redirige Transbank después del pago
 
 async function createTransaction() {
-    // Crear una transacción | Versión 3.x del SDK:
-    const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration)); 
-    const response = await tx.create(buyOrder, sessionId, amount, returnUrl); // identificador único orden, id sesión, monto transacción, url de retorno después del pago.
+    const tx = new WebpayPlus.Transaction(
+        new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration)
+    );
+    const response = await tx.create(buyOrder, sessionId, amount, returnUrl);
 
-    // Almacenamos objeto en constantes
     const tokenWs = response.token;
-    const formAction = response.url; // esta url va en el boton de "ir a pagar" (para redireccionar a transbanck)
+    const formAction = response.url;
 
-    // creamos un objeto con las constantes amount, buyOrder tokenWs y formAction
-    const theResponse = { amount, buyOrder, tokenWs, formAction };
-    console.log("respuesta 1: ", theResponse);
-
-    return theResponse;
+    return { amount, buyOrder, tokenWs, formAction };
 }
 
 export default createTransaction;
