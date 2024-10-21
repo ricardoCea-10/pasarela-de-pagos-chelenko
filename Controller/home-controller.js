@@ -23,6 +23,9 @@ function main() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
+    app.set('view engine', 'ejs');
+    app.set('views', __dirname + '/views');
+
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
         res.sendFile(__dirname + '/views/form.html');
@@ -41,20 +44,26 @@ function main() {
     });
 
     // Ruta para manejar el retorno de Transbank
-    app.all('/retorno-pago', async (req, res) => {
+    app.all('/retorno', async (req, res) => {
         const tokenWs = req.method === 'POST' ? req.body.token_ws : req.query.token_ws;
-
-        console.log('Token de la transacción:', tokenWs);
-
+    
         if (!tokenWs) {
             res.redirect('/pago-rechazado');
             return;
         }
-
+    
         try {
             const confirmation = await confirmTransaction(tokenWs);
-            if (confirmation) {
-                res.sendFile(__dirname + '/views/pago-aprobado.html');
+            if (confirmation && confirmation.response_code === 0) {
+                res.render('pago-aprobado', {
+                    titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
+                    tarjeta: confirmation.card_detail.card_number,
+                    monto: confirmation.amount,
+                    forma_abono: confirmation.payment_type_code, // Asumiendo que `payment_type_code` indica el tipo de pago
+                    fecha_hora: confirmation.transaction_date,
+                    codigo_transaccion: confirmation.buy_order,
+                    codigo_autorizacion: confirmation.authorization_code
+                });
             } else {
                 res.redirect('/pago-rechazado');
             }
