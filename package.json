@@ -16,5 +16,5 @@
     "prompt-sync": "^4.2.0",
     "transbank-sdk": "^5.0.0"
   },
-  "type" : "module"
+  "type": "module"
 }
