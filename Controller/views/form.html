@@ -1,18 +1,23 @@
-<!-- /views/form.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/styles.css">
     <title>Pantalla de Pago</title>
 </head>
 <body>
     <div class="container">
-        <h1>Iniciar Pago con Transbank</h1>
+        <header>
+            <img src="/chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo">
+        </header>
+        <h1>Pagar Reserva por $185.500</h1>
         <form action="/iniciar-pago" method="post">
-            <button type="submit" class="btn">Ir a Pagar</button>
+            <button type="submit" class="btn">
+                <img src="/implementacion-webpay-plus.jpg" alt="Webpay Plus" class="webpay-button">
+            </button>
         </form>
+        <button class="btn" onclick="window.location.href='/'">Cancelar</button>
     </div>
 </body>
 </html>

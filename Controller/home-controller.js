@@ -44,6 +44,8 @@ function main() {
     app.all('/retorno-pago', async (req, res) => {
         const tokenWs = req.method === 'POST' ? req.body.token_ws : req.query.token_ws;
 
+        console.log('Token de la transacción:', tokenWs);
+
         if (!tokenWs) {
             res.redirect('/pago-rechazado');
             return;

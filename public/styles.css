@@ -29,6 +29,10 @@ header {
     height: 150px;
 }
 
+.webpay-button {
+    height: 150px;
+}
+
 .message-box {
     padding: 20px;
     background-color: #c4e3f9;
