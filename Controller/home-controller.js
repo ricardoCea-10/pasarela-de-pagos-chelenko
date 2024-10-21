@@ -41,7 +41,7 @@ function main() {
     });
 
     // Ruta para manejar el retorno de Transbank
-    app.post('/retorno-pago', async (req, res) => {
+    app.get('/retorno-pago', async (req, res) => {
         const tokenWs = req.body.token_ws;
 
         if (!tokenWs) {
