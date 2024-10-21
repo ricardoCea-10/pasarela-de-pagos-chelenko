@@ -1,20 +1,17 @@
-import pkg from 'transbank-sdk'; // Transbanck | ES6 Modules
+import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 
-
-
-async function confirmTransaction() {
-
-    // Token de respuesta transbank para pruebas
-    const token = '01ab6d78fd8ced6825370edb87c90ef7a8e299f58961aa5f3e63772cba20ff53';
-
-    // Confirmar una transacción | Versión 3.x del SDK:
+async function confirmTransaction(token) {
     const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration));
     const response = await tx.commit(token);
 
-    console.log("Respuesta 2: ", response);
-
+    if (response.response_code === 0) {
+        console.log("Transacción aprobada:", response);
+        return response;
+    } else {
+        console.log("Error en la transacción");
+        return null;
+    }
 }
-
 
 export default confirmTransaction;

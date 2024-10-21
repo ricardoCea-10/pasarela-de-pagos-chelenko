@@ -8,6 +8,7 @@ Ejecutar:
 - npm init -y
 - npm install express
 - npm i morgan
+- npm install ejs
 
 Luego agregar  "type" : "module" al archivo package.json
 
