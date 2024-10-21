@@ -3,14 +3,14 @@ const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerc
 
 
 
-async function confirmTransaction() {
+async function confirmTransaction(theTokenWS2) {
 
     // Token de respuesta transbank para pruebas
-    const token = '01ab6d78fd8ced6825370edb87c90ef7a8e299f58961aa5f3e63772cba20ff53';
+    // const token = '01ab6d78fd8ced6825370edb87c90ef7a8e299f58961aa5f3e63772cba20ff53';
 
     // Confirmar una transacción | Versión 3.x del SDK:
     const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration));
-    const response = await tx.commit(token);
+    const response = await tx.commit(theTokenWS2);
 
     console.log("Respuesta 2: ", response); // mostramos datos por consola
     
@@ -18,7 +18,7 @@ async function confirmTransaction() {
     if (response.response_code == 0) {
         // Guardamos datos en constantes
         // código: redireccionar usuario a url WebPay
-        const tokenWs2 = token;
+        const tokenWs2 = theTokenWS2;
         const responseCode = response.response_code;
         const amount = response.amount;
         const autorizationCode = response.authorization_code;
