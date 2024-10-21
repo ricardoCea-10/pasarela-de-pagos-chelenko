@@ -42,17 +42,17 @@ function main() {
 
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno-pago', async (req, res) => {
-        const tokenWs = req.method === 'POST' ? req.body.token_ws : req.query.token_ws;
+        const tokenWs2 = req.method === 'POST' ? req.body.token_ws : req.query.token_ws;
 
-        console.log('Token de la transacción:', tokenWs);
+        console.log('Token de la transacción:', tokenWs2);
 
-        if (!tokenWs) {
+        if (!tokenWs2) {
             res.redirect('/pago-rechazado');
             return;
         }
 
         try {
-            const confirmation = await confirmTransaction(tokenWs);
+            const confirmation = await confirmTransaction(tokenWs2);
             if (confirmation) {
                 res.sendFile(__dirname + '/views/pago-aprobado.html');
             } else {
