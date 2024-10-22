@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -19,5 +19,24 @@
         </form>
         <button class="btn" onclick="window.location.href='/'">Cancelar</button>
     </div>
+</body>
+</html>
+-->
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <form method="post" action="/iniciar-pago">
+        <input type="hidden" name="token_ws" value="Inserte aquí el token entregado" />
+        <input type="submit" value="Ir a pagar" />
+    </form>
+    
 </body>
 </html>
