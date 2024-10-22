@@ -15,6 +15,14 @@ async function createTransaction() {
     const tokenWs = response.token;
     const formAction = response.url;
 
+    console.log("");
+    console.log("Datos para crear transaccion:");
+    console.log("amount:", amount);
+    console.log("buyOrder:", buyOrder);
+    console.log("tokenWs:", tokenWs);
+    console.log("formAction:", formAction);
+    console.log("");
+
     return { amount, buyOrder, tokenWs, formAction };
 }
 

@@ -44,9 +44,11 @@ function main() {
     });
 
     // Ruta para manejar el retorno de Transbank
-    app.all('/retorno-pago', async (req, res) => {
+    app.all('/retorno', async (req, res) => {
         const tokenWs2 = req.method === 'POST' ? req.body.token_ws : req.query.token_ws;
+        
 
+        console.log("");
         console.log('Token de la transacción:', tokenWs2);
 
         if (!tokenWs2) {
