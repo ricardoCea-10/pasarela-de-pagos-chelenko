@@ -55,11 +55,34 @@ function main() {
         try {
             const confirmation = await confirmTransaction(tokenWs);
             if (confirmation && confirmation.response_code === 0) {
+                let formaAbono;
+                switch (confirmation.payment_type_code) {
+                    case 'VD':
+                        formaAbono = 'Débito';
+                        break;
+                    case 'VN':
+                        formaAbono = 'Crédito (Venta Normal)';
+                        break;
+                    case 'VC':
+                        formaAbono = 'Crédito (Venta en Cuotas)';
+                        break;
+                    case 'SI':
+                        formaAbono = 'Crédito (Cuotas Sin Interés)';
+                        break;
+                    case 'S2':
+                        formaAbono = 'Crédito (2 Cuotas Sin Interés)';
+                        break;
+                    case 'NC':
+                        formaAbono = 'Crédito (N Cuotas)';
+                        break;
+                    default:
+                        formaAbono = 'Desconocido';
+                }
                 res.render('pago-aprobado', {
                     titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
                     tarjeta: confirmation.card_detail.card_number,
                     monto: confirmation.amount,
-                    forma_abono: confirmation.payment_type_code, // Asumiendo que `payment_type_code` indica el tipo de pago
+                    forma_abono: formaAbono, // Forma de abono interpretada
                     fecha_hora: confirmation.transaction_date,
                     codigo_transaccion: confirmation.buy_order,
                     codigo_autorizacion: confirmation.authorization_code
