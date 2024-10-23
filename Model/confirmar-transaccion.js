@@ -6,12 +6,12 @@ async function confirmTransaction(token2) {
     const response = await tx.commit(token2);
 
     if (response.response_code === 0) {
-        console.log("Transacción aprobada:", response);
-        return response;
+        console.log("Transacción confirmada desde Transbank:", response);
     } else {
-        console.log("Error en la transacción");
-        return null;
+        console.log("Error en la confirmación de la transacción desde Transbank", response);
     }
+
+    return response;
 }
 
 export default confirmTransaction;
