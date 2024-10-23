@@ -27,8 +27,14 @@ function main() {
     app.set('views', __dirname + '/views');
 
     // Ruta para la página inicial con el botón de pago
-    app.get('/', (req, res) => {
-        res.sendFile(__dirname + '/views/form.html');
+    app.get('/', async (req, res) => {
+        try {
+            const response = await createTransaction(); // Obtener los datos de la transacción
+            res.render('form', { theResponse: response }); // Pasar la respuesta a la vista
+        } catch (error) {
+            console.error('Error al crear la transacción:', error);
+            res.status(500).send('Error al crear la transacción');
+        }
     });
 
     // Ruta para crear la transacción con Transbank
