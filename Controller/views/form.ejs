@@ -23,8 +23,26 @@
 </html>
 -->
 
-
 <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagar con WebPay</title>
+</head>
+<body>
+    <p>Monto: <%= theResponse.amount %></p> 
+    <p>Orden de compra: <%= theResponse.buyOrder %></p>
+
+    <form method="post" action="<%= theResponse.formAction %>">
+        <input type="hidden" name="token_ws" value="<%= theResponse.tokenWs %>" />
+        <input type="submit" value="Ir a pagar" />
+    </form>
+</body>
+</html> 
+
+
+<!--<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -39,4 +57,4 @@
     </form>
     
 </body>
-</html>
+</html>-->
