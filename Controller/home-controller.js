@@ -51,67 +51,68 @@ function main() {
 
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
-        const tokenWs2 = req.method === 'POST' ? req.body.token_ws : req.query.token_ws;
-        const tbkToken = req.method === 'POST' ? req.body.TBK_TOKEN : req.query.TBK_TOKEN;
-        const tbkOrdenCompra = req.method === 'POST' ? req.body.TBK_ORDEN_COMPRA : req.query.TBK_ORDEN_COMPRA;
-        const tbkIdSesion = req.method === 'POST' ? req.body.TBK_ID_SESION : req.query.TBK_ID_SESION;
-        
-        // mostramos token_ws, TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION por consola
-        console.log("");
+        // Obtener parámetros del cuerpo o query, según el método
+        const tokenWs2 = req.body.token_ws || req.query.token_ws;
+        const tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
+        const tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
+        const tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
+    
+        // Mostrar los datos recibidos para depuración
+        console.log("Request Body:", req.body);
+        console.log("Request Query:", req.query);
         console.log("Mostramos datos recibidos por Transbank");
         console.log('token_ws:', tokenWs2);
         console.log('TBK_TOKEN:', tbkToken);
         console.log('TBK_ORDEN_COMPRA:', tbkOrdenCompra);
         console.log('TBK_ID_SESION:', tbkIdSesion);
-
+    
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
             if (tokenWs2) {
-                const confirmation = await confirmTransaction(tokenWs2); // Confirmar la transacción con el token_ws
+                const confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
-                if (confirmation.response_code === 0){
+                if (confirmation.response_code === 0) {
                     let formaAbono;
-                switch (confirmation.payment_type_code) {
-                    case 'VD':
-                        formaAbono = 'Débito';
-                        break;
-                    case 'VN':
-                        formaAbono = 'Crédito (Venta Normal)';
-                        break;
-                    case 'VC':
-                        formaAbono = 'Crédito (Venta en Cuotas)';
-                        break;
-                    case 'SI':
-                        formaAbono = 'Crédito (Cuotas Sin Interés)';
-                        break;
-                    case 'S2':
-                        formaAbono = 'Crédito (2 Cuotas Sin Interés)';
-                        break;
-                    case 'NC':
-                        formaAbono = 'Crédito (N Cuotas)';
-                        break;
-                    default:
-                        formaAbono = 'Desconocido';
-                }
+                    switch (confirmation.payment_type_code) {
+                        case 'VD':
+                            formaAbono = 'Débito';
+                            break;
+                        case 'VN':
+                            formaAbono = 'Crédito (Venta Normal)';
+                            break;
+                        case 'VC':
+                            formaAbono = 'Crédito (Venta en Cuotas)';
+                            break;
+                        case 'SI':
+                            formaAbono = 'Crédito (Cuotas Sin Interés)';
+                            break;
+                        case 'S2':
+                            formaAbono = 'Crédito (2 Cuotas Sin Interés)';
+                            break;
+                        case 'NC':
+                            formaAbono = 'Crédito (N Cuotas)';
+                            break;
+                        default:
+                            formaAbono = 'Desconocido';
+                    }
                     console.log("El pago ha sido aprobado");
                     res.send('El pago ha sido aprobado');
-                }
-                else{
+                } else {
                     console.log("El pago ha sido rechazado");
                     res.send('El pago ha sido rechazado');
                 }
-            } 
+            }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
                 await confirmTransaction(tbkToken); // Confirmar transacción (abortada) con TBK_TOKEN
                 console.log('Transacción abortada.');
                 res.send('Transacción abortada. Pago rechazado.');
-            } 
+            }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada por timeout.');
                 res.send('Transacción abortada. Timeout.');
-            } 
+            }
             // Si no se encuentra ninguna variable, indicar un error
             else {
                 console.log('Error en el proceso de pago. No se encontraron parámetros.');
@@ -122,6 +123,7 @@ function main() {
             res.status(500).send('Error en el servidor al procesar el pago.');
         }
     });
+    
 // ####################################################################################
 /*
         if (!tokenWs2) {
