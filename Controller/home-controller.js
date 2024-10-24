@@ -65,6 +65,7 @@ function main() {
         console.log('TBK_TOKEN:', tbkToken);
         console.log('TBK_ORDEN_COMPRA:', tbkOrdenCompra);
         console.log('TBK_ID_SESION:', tbkIdSesion);
+        console.log('');
     
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
@@ -96,17 +97,24 @@ function main() {
                             formaAbono = 'Desconocido';
                     }
                     console.log("El pago ha sido aprobado");
-                    res.send('El pago ha sido aprobado');
+                    res.render('pago-aprobado', {
+                        titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
+                        tarjeta: confirmation.card_detail.card_number,
+                        monto: confirmation.amount,
+                        forma_abono: formaAbono, // Forma de abono interpretada
+                        fecha_hora: confirmation.transaction_date,
+                        codigo_transaccion: confirmation.buy_order,
+                        codigo_autorizacion: confirmation.authorization_code
+                    });
                 } else {
                     console.log("El pago ha sido rechazado");
-                    res.send('El pago ha sido rechazado');
+                    res.redirect('/pago-rechazado');
                 }
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
-                await confirmTransaction(tbkToken); // Confirmar transacción (abortada) con TBK_TOKEN
                 console.log('Transacción abortada.');
-                res.send('Transacción abortada. Pago rechazado.');
+                res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
