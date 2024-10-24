@@ -6,6 +6,7 @@ import createTransaction from '../Model/crear-transaccion.js';
 import confirmTransaction from '../Model/confirmar-transaccion.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
+import path from 'path';
 
 // Definir `__dirname` manualmente para un entorno de ES Module
 const __filename = fileURLToPath(import.meta.url);  // Convertir la URL del módulo en una ruta de archivo
@@ -29,8 +30,9 @@ function main() {
     // Ruta para la página inicial con el botón de pago
     app.get('/', async (req, res) => {
         try {
-            const response = await createTransaction(); // Obtener los datos de la transacción
-            res.render('form', { theResponse: response }); // Pasar la respuesta a la vista
+            res.sendFile(path.join(__dirname, 'views', 'form-index.html'));
+            // const response = await createTransaction(); // Obtener los datos de la transacción
+            // res.render('form', { theResponse: response }); // Pasar la respuesta a la vista
         } catch (error) {
             console.error('Error al crear la transacción:', error);
             res.status(500).send('Error al crear la transacción');
