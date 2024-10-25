@@ -4,6 +4,10 @@ const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerc
 async function confirmTransaction(token2) {
     const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration));
     const response = await tx.commit(token2);
+    const token2Accion = token2;
+
+    // Imprimo el 2do token por consola
+    console.log("ACA VA LA BANDERITA DEL 2DO TOKEN", token2Accion);
 
     if (response.response_code === 0) {
         console.log("Transacción confirmada desde Transbank:", response);
