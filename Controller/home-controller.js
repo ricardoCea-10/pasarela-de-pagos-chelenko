@@ -135,66 +135,13 @@ function main() {
         }
     });
     
-// ####################################################################################
-/*
-        if (!tokenWs2) {
-            res.redirect('/pago-rechazado');
-            return;
-        }
-    
-        try {
-            const confirmation = await confirmTransaction(tokenWs2);
-            if (confirmation && confirmation.response_code === 0) {
-                let formaAbono;
-                switch (confirmation.payment_type_code) {
-                    case 'VD':
-                        formaAbono = 'Débito';
-                        break;
-                    case 'VN':
-                        formaAbono = 'Crédito (Venta Normal)';
-                        break;
-                    case 'VC':
-                        formaAbono = 'Crédito (Venta en Cuotas)';
-                        break;
-                    case 'SI':
-                        formaAbono = 'Crédito (Cuotas Sin Interés)';
-                        break;
-                    case 'S2':
-                        formaAbono = 'Crédito (2 Cuotas Sin Interés)';
-                        break;
-                    case 'NC':
-                        formaAbono = 'Crédito (N Cuotas)';
-                        break;
-                    default:
-                        formaAbono = 'Desconocido';
-                }
-                res.render('pago-aprobado', {
-                    titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
-                    tarjeta: confirmation.card_detail.card_number,
-                    monto: confirmation.amount,
-                    forma_abono: formaAbono, // Forma de abono interpretada
-                    fecha_hora: confirmation.transaction_date,
-                    codigo_transaccion: confirmation.buy_order,
-                    codigo_autorizacion: confirmation.authorization_code
-                });
-            } else {
-                res.redirect('/pago-rechazado');
-            }
-        } catch (error) {
-            console.error('Error al confirmar la transacción:', error);
-            res.status(500).send('Error al procesar el pago');
-        }
-    });
-*/
-// ############################################################################################
-
-
 
     // Ruta para mostrar la pantalla de pago rechazado
     app.get('/pago-rechazado', (req, res) => {
         res.sendFile(__dirname + '/views/pago-rechazado.html');
     });
 
+/*
     app.all('/transaccion-abortada', async (req, res) => {
         const tbkToken = req.method === 'POST' ? req.body.TBK_TOKEN : req.query.TBK_TOKEN;
         const tbkOrdenCompra = req.method === 'POST' ? req.body.TBK_ORDEN_COMPRA : req.query.TBK_ORDEN_COMPRA;
@@ -218,6 +165,7 @@ function main() {
             res.status(500).send('Error al procesar la transacción abortada');
         }
     });
+*/
 
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
