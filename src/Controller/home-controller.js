@@ -2,9 +2,8 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-//import createTransaction from '../Model/crear-transaccion.js';
-import confirmTransaction from '../Model/confirmar-transaccion.js';
 import createTransaction, { amount as monto } from '../Model/crear-transaccion.js';
+import confirmTransaction from '../Model/confirmar-transaccion.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -25,8 +24,9 @@ function main() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
+    // configura el ruteo de las vistas
     app.set('view engine', 'ejs');
-    app.set('views', __dirname + '/views');
+    app.set('views', path.join(__dirname, '../views'));
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
@@ -138,34 +138,8 @@ function main() {
 
     // Ruta para mostrar la pantalla de pago rechazado
     app.get('/pago-rechazado', (req, res) => {
-        res.sendFile(__dirname + '/views/pago-rechazado.html');
+        res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
-
-/*
-    app.all('/transaccion-abortada', async (req, res) => {
-        const tbkToken = req.method === 'POST' ? req.body.TBK_TOKEN : req.query.TBK_TOKEN;
-        const tbkOrdenCompra = req.method === 'POST' ? req.body.TBK_ORDEN_COMPRA : req.query.TBK_ORDEN_COMPRA;
-        const tbkIdSesion = req.method === 'POST' ? req.body.TBK_ID_SESION : req.query.TBK_ID_SESION;
-    
-        if (!tbkToken || !tbkOrdenCompra || !tbkIdSesion) {
-            res.status(400).send('Datos de la transacción abortada no disponibles');
-            return;
-        }
-    
-        try {
-            // En lugar de confirmar la transacción, ya que esta fue abortada,
-            // simplemente puedes redirigir a una vista específica para mostrar la información al usuario.
-            res.render('pago-abortado', {
-                ordenCompra: tbkOrdenCompra,
-                idSesion: tbkIdSesion,
-                mensaje: 'La transacción ha sido abortada. Por favor, intente nuevamente o comuníquese con soporte.'
-            });
-        } catch (error) {
-            console.error('Error al manejar la transacción abortada:', error);
-            res.status(500).send('Error al procesar la transacción abortada');
-        }
-    });
-*/
 
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
