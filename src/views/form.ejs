@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagar Reserva</title>
-    <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-    <header>
-        <h1>Pagar Reserva por $<%= monto %></h1>
-    </header>
-
-    <p>Seleccione un método de pago para continuar.</p>
-    <form action="/iniciar-pago" method="POST">
-        <input type="hidden" name="monto" value="<%= monto %>">
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/styles.css">
+        <title>Paga tu reserva - Chelenko Lodge</title>
+    </head>
+    <body>
+    <div class="container">
+        <header>
+            <img src="/chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo"> 
+        </header>
+            <h1>Pagar Reserva por $<%= monto %></h1>
+         <form action="/iniciar-pago" method="POST">
+            <input type="hidden" name="monto" value="<%= monto %>">
         <button type="submit">Pagar con Webpay Plus</button>
-    </form>
+        <button class="btn" onclick="window.location.href='/'">Cancelar</button>
+        </form>
+    </div>  
 </body>
-</html
+</html>
