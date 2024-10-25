@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);              // Obtener el nombre del dir
 
 function main() {
     const app = express();
-    const port = 3000;
+    const port = process.env.PORT || 3000;
 
     // Configurar Express para servir archivos estáticos (como CSS)
     app.use(express.static('public'));
