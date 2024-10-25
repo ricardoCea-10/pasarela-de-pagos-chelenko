@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Ejecutar:\r - npm install\r - npm install transbank-sdk \r - npm init -y\r - npm install express\r - npm i morgan",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
