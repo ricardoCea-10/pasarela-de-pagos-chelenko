@@ -2,8 +2,9 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-import createTransaction from '../Model/crear-transaccion.js';
+//import createTransaction from '../Model/crear-transaccion.js';
 import confirmTransaction from '../Model/confirmar-transaccion.js';
+import createTransaction, { amount as monto } from '../Model/crear-transaccion.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 
@@ -27,27 +28,28 @@ function main() {
     app.set('views', __dirname + '/views');
 
     // Ruta para la página inicial con el botón de pago
-    app.get('/', async (req, res) => {
-        try {
-            const response = await createTransaction(); // Obtener los datos de la transacción
-            res.render('form', { theResponse: response }); // Pasar la respuesta a la vista
-        } catch (error) {
-            console.error('Error al crear la transacción:', error);
-            res.status(500).send('Error al crear la transacción');
-        }
+    app.get('/', (req, res) => {
+        res.render('form', { monto });
     });
+    
 
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', async (req, res) => {
         try {
-            const response = await createTransaction();
-            // Redirige al usuario a la página de pago de Webpay
-            res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
+            const monto = req.body.monto; // Obtener el monto desde el formulario
+            const response = await createTransaction(monto);
+            if (response && response.formAction && response.tokenWs) {
+                // Redirigir al usuario directamente al formulario de Webpay
+                res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
+            } else {
+                throw new Error('Error al crear la transacción');
+            }
         } catch (error) {
             console.error('Error al crear la transacción:', error);
             res.status(500).send('Error al iniciar la transacción');
         }
     });
+    
 
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
@@ -105,6 +107,30 @@ function main() {
     // Ruta para mostrar la pantalla de pago rechazado
     app.get('/pago-rechazado', (req, res) => {
         res.sendFile(__dirname + '/views/pago-rechazado.html');
+    });
+
+    app.all('/transaccion-abortada', async (req, res) => {
+        const tbkToken = req.method === 'POST' ? req.body.TBK_TOKEN : req.query.TBK_TOKEN;
+        const tbkOrdenCompra = req.method === 'POST' ? req.body.TBK_ORDEN_COMPRA : req.query.TBK_ORDEN_COMPRA;
+        const tbkIdSesion = req.method === 'POST' ? req.body.TBK_ID_SESION : req.query.TBK_ID_SESION;
+    
+        if (!tbkToken || !tbkOrdenCompra || !tbkIdSesion) {
+            res.status(400).send('Datos de la transacción abortada no disponibles');
+            return;
+        }
+    
+        try {
+            // En lugar de confirmar la transacción, ya que esta fue abortada,
+            // simplemente puedes redirigir a una vista específica para mostrar la información al usuario.
+            res.render('pago-abortado', {
+                ordenCompra: tbkOrdenCompra,
+                idSesion: tbkIdSesion,
+                mensaje: 'La transacción ha sido abortada. Por favor, intente nuevamente o comuníquese con soporte.'
+            });
+        } catch (error) {
+            console.error('Error al manejar la transacción abortada:', error);
+            res.status(500).send('Error al procesar la transacción abortada');
+        }
     });
 
     app.listen(port, () => {
