@@ -1,4 +1,100 @@
-* {
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #dedad1;
+}
+
+.container {
+    background-color: #ffffff;
+    height: 500px;
+    width: 550px;
+    filter: drop-shadow(0px 10px 10px rgba(0, 0, 0, 0.25));
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    padding: 20px; 
+}
+
+header {
+    padding: 10px 0;
+}
+
+.logo {
+    height: 100px;
+    filter: drop-shadow(0px 6px 6px rgba(0,0,0,0.20000000298023224));
+    left: 180px;
+}
+
+h1 {
+    color: #000000;
+    font-size: 28px;
+    font-family: "Raleway", sans-serif;
+    font-weight: 500;
+    border-style: hidden;
+    outline: none;
+    text-align: center;
+}
+
+p {
+    color: #000000;
+    font-size: 20px;
+    font-family: "Raleway", sans-serif;
+    font-weight: 400;
+    border-style: hidden;
+    outline: none;
+    margin-top: 10px;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: column; /* Coloca los botones uno encima del otro */
+    align-items: center;    /* Centra los botones horizontalmente */
+    gap: 10px;              /* Espacio entre los botones, ajusta según sea necesario */
+    width: 100%;     
+}
+
+.btn, .cancel-btn {
+    width: 100%; /* Asegúrate de que ocupen todo el ancho posible del contenedor */
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+.webpay-button {
+    height: 50px; /* Ajusta la altura según sea necesario */
+    filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.25));
+}
+
+.btn {
+    background-color: #d9d9d9;
+    height: 90px; /* Ajusta la altura según sea necesario */
+    width: 100%;
+    filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.25));
+}
+
+.cancel-btn {
+    width: 100%;
+    background-color: #a2d1b4;
+    height: 40px; /* Ajusta la altura según sea necesario */
+    filter: drop-shadow(0px 4px 10px rgba(0,0,0,0.25));
+    margin-top: 110px;
+    font-family: "Raleway", sans-serif;
+    color: white;
+}
+
+.btn:hover {
+    background-color: #c0c0c0; /* Slightly darker shade for hover effect */
+}
+
+.cancel-btn:hover {
+    background-color: #8bbf9e; /* Slightly darker shade for hover effect */
+}
+
+/* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -72,4 +168,4 @@ button {
 
 button:hover {
     background-color: #1d4f7a;
-}
+} */

@@ -3,20 +3,52 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/styles.css">
+        <link rel="stylesheet" href="/public/styles.css">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+        </style>
         <title>Paga tu reserva - Chelenko Lodge</title>
     </head>
     <body>
     <div class="container">
         <header>
-            <img src="/chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo"> 
+            <img src="/public/chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo"> 
         </header>
-            <h1>Pagar Reserva por $<%= monto %></h1>
+            <h1>Pagar tu reserva por $<%= monto %></h1>
+            <p>Selecciona tu método de pago:</p>
          <form action="/iniciar-pago" method="POST">
             <input type="hidden" name="monto" value="<%= monto %>">
-        <button type="submit">Pagar con Webpay Plus</button>
-        <button class="btn" onclick="window.location.href='/'">Cancelar</button>
+        
+            <div class="buttons-container"></div>
+        <button type="submit" class="btn">
+            <img src="/public/1.WebpayPlus_FB_300px.png" alt="Webpay Plus" class="webpay-button"></button>
+        <button class="cancel-btn" onclick="window.location.href='/'">Cancelar</button>
+        </div>
         </form>
     </div>  
 </body>
 </html>
+
+<!-- <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <title>Paga tu reserva - Chelenko Lodge</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="/chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo">
+        </header>
+        <h1>Pagar Reserva por $185.500</h1>
+        <form action="/iniciar-pago" method="post">
+            <button type="submit" class="btn">
+                <img src="/implementacion-webpay-plus.jpg" alt="Webpay Plus" class="webpay-button">
+            </button>
+        </form>
+        <button class="btn" onclick="window.location.href='/'">Cancelar</button>
+    </div>
+</body>
+</html>-->
