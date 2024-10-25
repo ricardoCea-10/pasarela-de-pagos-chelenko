@@ -3,41 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagar Reserva</title>
     <link rel="stylesheet" href="/styles.css">
-    <title>Paga tu reserva - Chelenko Lodge</title>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <img src="/chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo">
-        </header>
-        <h1>Pagar Reserva por $185.500</h1>
-        <form method="post" action="<%= theResponse.formAction %>">
-            <input type="hidden" name="token_ws" value="<%= theResponse.tokenWs %>" />
-            <button type="submit" style="border: none; background: none;">
-            <img src="/implementacion-webpay-plus.jpg" alt="Pagar con Webpay" class="webpay-button"/>
-        </button>
-    </form>
-        <button class="btn" onclick="window.location.href='/'">Cancelar</button>
-    </div>
-</body>
-</html>
+    <header>
+        <h1>Pagar Reserva por $<%= monto %></h1>
+    </header>
 
-
-<!-- <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagar con WebPay</title>
-</head>
-<body>
-    <p>Monto: <%= theResponse.amount %></p> 
-    <p>Orden de compra: <%= theResponse.buyOrder %></p>
-
-    <form method="post" action="<%= theResponse.formAction %>">
-        <input type="hidden" name="token_ws" value="<%= theResponse.tokenWs %>" />
-        <input type="submit" value="Ir a pagar" />
+    <p>Seleccione un método de pago para continuar.</p>
+    <form action="/iniciar-pago" method="POST">
+        <input type="hidden" name="monto" value="<%= monto %>">
+        <button type="submit">Pagar con Webpay Plus</button>
     </form>
 </body>
-</html> -->
+</html
