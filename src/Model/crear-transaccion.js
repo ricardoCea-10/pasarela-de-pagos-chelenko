@@ -9,7 +9,7 @@ const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerc
  */
 const buyOrder = `orden_${Date.now()}`; // Crear un identificador único
 const sessionId = `sesion_${Date.now()}`;
-const amount = 1000; // Este es el monto que estás cobrando
+const amount = 9999; // Este es el monto que estás cobrando
 const returnUrl = "http://localhost:3000/retorno"; // Esta es la URL a la que redirige Transbank después del pago
 
 // Función asíncrona para crear una transacción en Webpay Plus
@@ -36,7 +36,16 @@ async function createTransaction() {
     const tokenWs = response.token;
     const formAction = response.url;
 
+    console.log("");
+    console.log("Datos de la creación de la transaccion:");
+    console.log("amount:", amount);
+    console.log("buyOrder:", buyOrder);
+    console.log("tokenWs:", tokenWs);
+    console.log("formAction:", formAction);
+    console.log("");
+
     return { amount, buyOrder, tokenWs, formAction };
 }
 
 export default createTransaction;
+export { amount }; // Exporta "amount" directamente
