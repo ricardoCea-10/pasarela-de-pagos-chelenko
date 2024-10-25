@@ -72,6 +72,9 @@ function main() {
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
     });
+
+
+    
 }
 
 export default main;
