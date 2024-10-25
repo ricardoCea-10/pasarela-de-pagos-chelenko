@@ -4,6 +4,7 @@
 
 **Flujo de la Aplicación**
 
+
 1. Inicio de la Transacción
 
 Cuando un usuario accede a la página principal de la aplicación, el servidor ejecuta la ruta configurada en home-controller.js. En este punto:
