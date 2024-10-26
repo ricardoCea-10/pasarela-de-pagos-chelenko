@@ -4,9 +4,6 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/public/styles.css">
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
-        </style>
         <title>Paga tu reserva - Chelenko Lodge</title>
     </head>
     <body>
@@ -19,10 +16,10 @@
          <form action="/iniciar-pago" method="POST">
             <input type="hidden" name="monto" value="<%= monto %>">
         
-            <div class="buttons-container"></div>
+            <div class="buttons-container">
         <button type="submit" class="btn">
             <img src="/public/1.WebpayPlus_FB_300px.png" alt="Webpay Plus" class="webpay-button"></button>
-        <button class="cancel-btn" onclick="window.location.href='/'">Cancelar</button>
+            <a href="/" class="cancel-btn">Cancelar</a>
         </div>
         </form>
     </div>  
