@@ -2,9 +2,9 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js';
-import confirmTransaction from '../Model/Service/confirmar-transaccion.js';
-import consultarTransaccion from '../Model/consulta-transaccion.js'; // Importar la función de consulta de transacción
+import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
+import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
+import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -138,7 +138,7 @@ function main() {
     app.get('/pago-rechazado', (req, res) => {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
-
+    
     // Ruta para consultar el estado de una transacción
     app.get('/consultar-transaccion/:token', async (req, res) => {
         const token = req.params.token; // Obtener el token de la URL
@@ -154,6 +154,7 @@ function main() {
             res.status(500).send('Error al consultar el estado de la transacción');
         }
     });
+   
 
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
