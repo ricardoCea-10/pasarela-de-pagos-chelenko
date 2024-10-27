@@ -2,8 +2,8 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-import createTransaction, { amount as monto } from '../Model/crear-transaccion.js';
-import confirmTransaction from '../Model/confirmar-transaccion.js';
+import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js';
+import confirmTransaction from '../Model/Service/confirmar-transaccion.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
