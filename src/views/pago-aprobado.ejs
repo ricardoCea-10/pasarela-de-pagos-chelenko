@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>¡Pago exitoso! - Chelenko Lodge</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <img src="chelenko-logo.png" alt="Chelenko Lodge Logo" class="logo">
+            <img src="/chelenko-logo.png" alt="Chelenko Lodge Logo" draggable="false" class="logo">
         </header>
         <main>
             <div class="message-box success">
-                <h1>Pago exitoso</h1>
+                <h1>¡Pago exitoso!</h1>
                 <ul>
-                    <li><strong>Titular:</strong> <%= titular %></li>
                     <li><strong>Tarjeta:</strong> **** **** **** <%= tarjeta %></li>
                     <li><strong>Monto:</strong> $<%= monto %></li>
                     <li><strong>Forma de abono:</strong> <%= forma_abono %></li>
@@ -24,7 +23,7 @@
                     <li><strong>Código de autorización:</strong> <%= codigo_autorizacion %></li>
                 </ul>
             </div>
-            <button class="btn" onclick="window.location.href='/'">Aceptar</button>
+            <button class="accept-btn" onclick="window.location.href='/'">Aceptar</button>
         </main>
     </div>
 </body>

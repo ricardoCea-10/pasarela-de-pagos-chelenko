@@ -2,8 +2,9 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-import createTransaction, { amount as monto } from '../Model/crear-transaccion.js';
-import confirmTransaction from '../Model/confirmar-transaccion.js';
+import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
+import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
+import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -24,7 +25,7 @@ function main() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
-    // configura el ruteo de las vistas
+    // Configura el ruteo de las vistas
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../views'));
 
@@ -33,7 +34,6 @@ function main() {
         res.render('form', { monto });
     });
     
-
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', async (req, res) => {
         try {
@@ -51,7 +51,6 @@ function main() {
         }
     });
     
-
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
         // Obtener parámetros del cuerpo o query, según el método
@@ -69,7 +68,7 @@ function main() {
         console.log('TBK_ORDEN_COMPRA:', tbkOrdenCompra);
         console.log('TBK_ID_SESION:', tbkIdSesion);
         console.log('');
-    
+
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
             if (tokenWs2) {
@@ -134,12 +133,28 @@ function main() {
             res.status(500).send('Error en el servidor al procesar el pago.');
         }
     });
-    
 
     // Ruta para mostrar la pantalla de pago rechazado
     app.get('/pago-rechazado', (req, res) => {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
+    
+    // Ruta para consultar el estado de una transacción
+    app.get('/consultar-transaccion/:token', async (req, res) => {
+        const token = req.params.token; // Obtener el token de la URL
+        try {
+            const response = await consultarTransaccion(token);
+            if (response) {
+                res.json(response); // Retornar la respuesta en formato JSON
+            } else {
+                res.status(404).send('Transacción no encontrada');
+            }
+        } catch (error) {
+            console.error('Error al consultar la transacción:', error);
+            res.status(500).send('Error al consultar el estado de la transacción');
+        }
+    });
+   
 
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
