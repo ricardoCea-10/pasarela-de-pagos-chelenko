@@ -6,7 +6,7 @@ async function confirmTransaction(token2) {
         // metodo de Transback para confirmar transacción (usamos SDK):
         const tx = new WebpayPlus.Transaction(new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration));
         const response = await tx.commit(token2);
-        const token2Accion = token2;
+        let token2Accion = token2;
 
         // Imprimo el 2do token por consola
         console.log("ACA VA LA BANDERITA DEL 2DO TOKEN", token2Accion);

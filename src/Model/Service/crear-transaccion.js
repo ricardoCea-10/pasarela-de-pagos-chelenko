@@ -2,19 +2,11 @@
 import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 
-
-/* 
- * Configuración de la transacción: 
- * - Generación de identificadores únicos para la orden de compra y la sesión.
- * - Definición del monto a cobrar (en pesos) y la URL de retorno, que es la dirección a la que Transbank redirigirá después del pago.
- */
-const buyOrder = `orden_${Date.now()}`; // Crear un identificador único
-const sessionId = `sesion_${Date.now()}`;
-const amount = 9999; // Este es el monto que estás cobrando
+let amount;
 const returnUrl = "http://localhost:3000/retorno"; // Esta es la URL a la que redirige Transbank después del pago
 
 // Función asíncrona para crear una transacción en Webpay Plus
-async function createTransaction() {
+async function createTransaction(buyOrder, sessionId, amount) {
     try {
         /* 
         * Inicializa una nueva instancia de transacción en Webpay Plus usando el entorno de integración
@@ -32,7 +24,7 @@ async function createTransaction() {
         const response = await tx.create(buyOrder, sessionId, amount, returnUrl);
         
         // Extraer el token y la URL para el formulario de pago, y retornarlos junto con el monto y la orden
-        const tokenWs = response.token;
+        let tokenWs = response.token;
         const formAction = response.url;
     
         console.log("");
