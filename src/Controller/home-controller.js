@@ -31,7 +31,8 @@ function main() {
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
-        res.render('form', { monto });
+        // res.render('form', { monto });
+        res.sendFile(path.join(__dirname, '../views', 'form.html'));
     });
     
     // Ruta para crear la transacción con Transbank
