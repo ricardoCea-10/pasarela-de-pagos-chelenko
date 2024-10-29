@@ -117,7 +117,9 @@ function main() {
                         forma_abono: formaAbono, // Forma de abono interpretada
                         fecha_hora: confirmation.transaction_date,
                         codigo_transaccion: confirmation.buy_order,
-                        codigo_autorizacion: confirmation.authorization_code
+                        codigo_autorizacion: confirmation.authorization_code,
+                        // objeto:
+                        objeto_confirmacion: confirmation
                     });
                 } else {
                     console.log("El pago ha sido rechazado");
