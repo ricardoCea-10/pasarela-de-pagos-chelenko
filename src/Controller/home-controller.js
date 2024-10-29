@@ -37,8 +37,18 @@ function main() {
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', async (req, res) => {
         try {
-            const monto = req.body.monto; // Obtener el monto desde el formulario
-            const response = await createTransaction(monto);
+            // const monto = req.body.monto; // Obtener el monto desde el formulario
+
+            /* 
+            * Configuración de la transacción: 
+            * - Generación de identificadores únicos para la orden de compra y la sesión.
+            * - Definición del monto a cobrar (en pesos) y la URL de retorno, que es la dirección a la que Transbank redirigirá después del pago.
+            */
+            let buyOrder = `orden_${Date.now()}`; // Crear un identificador único
+            let sessionId = `sesion_${Date.now()}`;
+            let amount = 9999; // Este es el monto que estás cobrando
+
+            let response = await createTransaction(buyOrder, sessionId, amount);
             if (response && response.formAction && response.tokenWs) {
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
@@ -54,10 +64,10 @@ function main() {
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
         // Obtener parámetros del cuerpo o query, según el método
-        const tokenWs2 = req.body.token_ws || req.query.token_ws;
-        const tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
-        const tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
-        const tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
+        let tokenWs2 = req.body.token_ws || req.query.token_ws;
+        let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
+        let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
+        let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
     
         // Mostrar los datos recibidos para depuración
         console.log("Request Body:", req.body);
@@ -72,7 +82,8 @@ function main() {
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
             if (tokenWs2) {
-                const confirmation = await confirmTransaction(tokenWs2);
+                // await consultarTransaccion(tokenWs2);
+                let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
                 if (confirmation.response_code === 0) {
                     let formaAbono;
@@ -106,7 +117,9 @@ function main() {
                         forma_abono: formaAbono, // Forma de abono interpretada
                         fecha_hora: confirmation.transaction_date,
                         codigo_transaccion: confirmation.buy_order,
-                        codigo_autorizacion: confirmation.authorization_code
+                        codigo_autorizacion: confirmation.authorization_code,
+                        // objeto:
+                        objeto_confirmacion: confirmation
                     });
                 } else {
                     console.log("El pago ha sido rechazado");
