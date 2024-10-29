@@ -37,16 +37,21 @@ function main() {
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', async (req, res) => {
         try {
-            // const monto = req.body.monto; // Obtener el monto desde el formulario
+            
+            // Obtenemos datos desde formulario
+            const buyOrder = req.body.buyOrder;
+            const sessionId = req.body.sessionId;
+            const amount = req.body.amount; 
 
             /* 
             * Configuración de la transacción: 
             * - Generación de identificadores únicos para la orden de compra y la sesión.
             * - Definición del monto a cobrar (en pesos) y la URL de retorno, que es la dirección a la que Transbank redirigirá después del pago.
-            */
+            
             let buyOrder = `orden_${Date.now()}`; // Crear un identificador único
             let sessionId = `sesion_${Date.now()}`;
             let amount = 9999; // Este es el monto que estás cobrando
+            */
 
             let response = await createTransaction(buyOrder, sessionId, amount);
             if (response && response.formAction && response.tokenWs) {
@@ -118,8 +123,8 @@ function main() {
                         fecha_hora: confirmation.transaction_date,
                         codigo_transaccion: confirmation.buy_order,
                         codigo_autorizacion: confirmation.authorization_code,
-                        // objeto:
-                        objeto_confirmacion: confirmation
+                        // objeto a JSON:
+                        objeto_confirmacion: JSON.stringify(confirmation, null, 2) // Convierte el objeto a JSON
                     });
                 } else {
                     console.log("El pago ha sido rechazado");
