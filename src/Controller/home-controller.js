@@ -120,7 +120,6 @@ function main() {
                         fecha_hora: confirmation.transaction_date,
                         codigo_transaccion: confirmation.buy_order,
                         codigo_autorizacion: confirmation.authorization_code
-                       
                     });
                 } else {
                     console.log("El pago ha sido rechazado");
