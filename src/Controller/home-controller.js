@@ -2,8 +2,9 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-import createTransaction, { amount as monto } from '../Model/crear-transaccion.js';
-import confirmTransaction from '../Model/confirmar-transaccion.js';
+import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
+import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
+import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -24,21 +25,36 @@ function main() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
-    // configura el ruteo de las vistas
+    // Configura el ruteo de las vistas
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../views'));
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
-        res.render('form', { monto });
+        // res.render('form', { monto });
+        res.sendFile(path.join(__dirname, '../views', 'form.html'));
     });
     
-
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', async (req, res) => {
         try {
-            const monto = req.body.monto; // Obtener el monto desde el formulario
-            const response = await createTransaction(monto);
+            
+            // Obtenemos datos desde formulario
+            const buyOrder = req.body.buyOrder;
+            const sessionId = req.body.sessionId;
+            const amount = req.body.amount; 
+
+            /* 
+            * Configuración de la transacción: 
+            * - Generación de identificadores únicos para la orden de compra y la sesión.
+            * - Definición del monto a cobrar (en pesos) y la URL de retorno, que es la dirección a la que Transbank redirigirá después del pago.
+            
+            let buyOrder = `orden_${Date.now()}`; // Crear un identificador único
+            let sessionId = `sesion_${Date.now()}`;
+            let amount = 9999; // Este es el monto que estás cobrando
+            */
+
+            let response = await createTransaction(buyOrder, sessionId, amount);
             if (response && response.formAction && response.tokenWs) {
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
@@ -51,14 +67,13 @@ function main() {
         }
     });
     
-
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
         // Obtener parámetros del cuerpo o query, según el método
-        const tokenWs2 = req.body.token_ws || req.query.token_ws;
-        const tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
-        const tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
-        const tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
+        let tokenWs2 = req.body.token_ws || req.query.token_ws;
+        let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
+        let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
+        let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
     
         // Mostrar los datos recibidos para depuración
         console.log("Request Body:", req.body);
@@ -69,11 +84,12 @@ function main() {
         console.log('TBK_ORDEN_COMPRA:', tbkOrdenCompra);
         console.log('TBK_ID_SESION:', tbkIdSesion);
         console.log('');
-    
+
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
             if (tokenWs2) {
-                const confirmation = await confirmTransaction(tokenWs2);
+                // await consultarTransaccion(tokenWs2);
+                let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
                 if (confirmation.response_code === 0) {
                     let formaAbono;
@@ -107,7 +123,9 @@ function main() {
                         forma_abono: formaAbono, // Forma de abono interpretada
                         fecha_hora: confirmation.transaction_date,
                         codigo_transaccion: confirmation.buy_order,
-                        codigo_autorizacion: confirmation.authorization_code
+                        codigo_autorizacion: confirmation.authorization_code,
+                        // objeto a JSON:
+                        objeto_confirmacion: JSON.stringify(confirmation, null, 2) // Convierte el objeto a JSON
                     });
                 } else {
                     console.log("El pago ha sido rechazado");
@@ -134,12 +152,28 @@ function main() {
             res.status(500).send('Error en el servidor al procesar el pago.');
         }
     });
-    
 
     // Ruta para mostrar la pantalla de pago rechazado
     app.get('/pago-rechazado', (req, res) => {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
+    
+    // Ruta para consultar el estado de una transacción
+    app.get('/consultar-transaccion/:token', async (req, res) => {
+        const token = req.params.token; // Obtener el token de la URL
+        try {
+            const response = await consultarTransaccion(token);
+            if (response) {
+                res.json(response); // Retornar la respuesta en formato JSON
+            } else {
+                res.status(404).send('Transacción no encontrada');
+            }
+        } catch (error) {
+            console.error('Error al consultar la transacción:', error);
+            res.status(500).send('Error al consultar el estado de la transacción');
+        }
+    });
+   
 
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
