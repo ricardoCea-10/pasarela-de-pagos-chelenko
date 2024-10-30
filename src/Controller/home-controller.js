@@ -44,6 +44,11 @@ function main() {
             const sessionId = req.body.sessionId;
             const amount = req.body.amount; 
 
+            // imprimimos por consola datos
+            console.log("buyOrder: ", buyOrder);
+            console.log("sessionId: ", sessionId);
+            console.log("amount: ", amount);
+
             /* 
             * Configuración de la transacción: 
             * - Generación de identificadores únicos para la orden de compra y la sesión.
