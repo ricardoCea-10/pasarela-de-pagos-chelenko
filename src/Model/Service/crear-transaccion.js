@@ -3,10 +3,10 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 
 let amount;
-const returnUrl = "http://localhost:3000/retorno"; // Esta es la URL a la que redirige Transbank después del pago
+// const returnUrl = "http://localhost:3000/retorno"; // Esta es la URL a la que redirige Transbank después del pago
 
 // Función asíncrona para crear una transacción en Webpay Plus
-async function createTransaction(buyOrder, sessionId, amount) {
+async function createTransaction(buyOrder, sessionId, amount, returnUrl) {
     try {
         /* 
         * Inicializa una nueva instancia de transacción en Webpay Plus usando el entorno de integración
