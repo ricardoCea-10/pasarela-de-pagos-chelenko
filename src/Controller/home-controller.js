@@ -50,9 +50,21 @@ function main() {
             let response = await createTransaction(buyOrder, sessionId, amount, returnUrl);
 
             if (response && response.formAction && response.tokenWs) {
+
+                // generamos objeto para pasar datos a formato JSON
+                let responseCreateTransaction = {
+                    amount: response.amount,
+                    buyOrder: response.buyOrder,
+                    tokenWs: response.tokenWs,
+                    formAction: response.formAction
+                }
+
+                res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
                 
+                /*
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
+                */
                 
             } else {
                 throw new Error('Error al redirigir al usuario');
