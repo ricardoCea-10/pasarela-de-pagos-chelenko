@@ -13,6 +13,7 @@ async function createTransaction(buyOrder, sessionId, amount) {
         * y configurando el código de comercio y la clave de API para realizar la transacción.
         * Se puede cambiar a `Environment.Production` para el entorno de producción.
         */
+
         const tx = new WebpayPlus.Transaction(
             new Options(IntegrationCommerceCodes.WEBPAY_PLUS, IntegrationApiKeys.WEBPAY, Environment.Integration)
         );
