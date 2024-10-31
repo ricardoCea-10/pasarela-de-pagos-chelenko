@@ -2,6 +2,8 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
+import axios from 'axios';
+import Transaccion from '../Model/transaccion.js';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
