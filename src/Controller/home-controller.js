@@ -29,6 +29,9 @@ function main() {
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../views'));
 
+    // Objetos para almacenar información entre las diferentes rutas:
+    let transactionIdGuesT = {};
+
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, '../views', 'form.html'));
@@ -43,10 +46,13 @@ function main() {
             let sessionId = req.body.sessionId;
             let amount = req.body.amount; 
             let returnUrl = req.body.returnUrl;
-            let IdGuesT = req.body.IdGuesT
+            let idGuesT = req.body.IdGuesT
+
+            // Almacenamos datos en objeto para luego pasarlos a la función de confirmar transacción
+            transactionIdGuesT["idGuesT"] = idGuesT;
             
             // Llamamos a la función crear transacción
-            console.log("Datos recibidos del formulario: BuyOrder:", buyOrder, "| sessionId:", sessionId, "| amount:", amount, "| returnUrl:", returnUrl, "| IdGuest:", IdGuesT);
+            console.log("Datos recibidos del formulario: BuyOrder:", buyOrder, "| sessionId:", sessionId, "| amount:", amount, "| returnUrl:", returnUrl, "| IdGuest:", idGuesT);
             let response = await createTransaction(buyOrder, sessionId, amount, returnUrl);
 
             if (response && response.formAction && response.tokenWs) {
@@ -75,6 +81,11 @@ function main() {
     
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
+        
+        console.log("BANDERA transactionIdGuesT:", transactionIdGuesT);
+        // Obtenemos datos del objeto transactionIdGuesT:
+        let idGuesT = transactionIdGuesT.idGuesT;
+
         // Obtener parámetros del cuerpo o query, según el método
         let tokenWs2 = req.body.token_ws || req.query.token_ws;
         let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
@@ -98,6 +109,7 @@ function main() {
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
 
                 let responseConfirmTransaction = {
+                    idGuesT : idGuesT,
                     tokenWs2 : tokenWs2,
                     vci : confirmation.vci,
                     amount : confirmation.amount,
