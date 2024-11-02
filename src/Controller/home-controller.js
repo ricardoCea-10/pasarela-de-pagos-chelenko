@@ -118,7 +118,8 @@ function main() {
             if (tokenWs2) {
                 let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
-
+                
+                // generamos objeto con datos de respuesta
                 let responseConfirmTransaction = {
                     idGuesT : idGuesT,
                     messageInfo : "",
@@ -161,7 +162,7 @@ function main() {
                             formaAbono = 'Desconocido';
                     }
                     console.log("El pago ha sido aprobado");
-                    responseConfirmTransaction.messageInfo = "El pago ha sido aprobado";
+                    responseConfirmTransaction.messageInfo = "El pago ha sido aprobado"; // anadimos respuesta aprobada
                     res.status(200).json(responseConfirmTransaction);
                     /*
                     res.render('pago-aprobado', {
@@ -176,7 +177,7 @@ function main() {
                     */
                 } else {
                     console.log("El pago ha sido rechazado");
-                    responseConfirmTransaction.messageInfo = "El pago ha sido rechazado";
+                    responseConfirmTransaction.messageInfo = "El pago ha sido rechazado";  // anadimos respuesta rechazada
                     res.status(200).json(responseConfirmTransaction);
                    // res.redirect('/pago-rechazado');
                 }
@@ -184,13 +185,15 @@ function main() {
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada.');
-                res.status(200).send('Transacción abortada.');
+                dataTransbank.messageInfo = "Transacción abortada";
+                res.status(200).json(dataTransbank);
                 //res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada por timeout.');
-                res.status(200).send('Transacción abortada por timeout.');
+                dataTransbank.messageInfo = "Transacción abortada por timeout";
+                res.status(200).json(dataTransbank);
                 //res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
