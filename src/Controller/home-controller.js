@@ -59,12 +59,12 @@ function main() {
                     formAction: response.formAction
                 }
 
-                res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
+                // res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
                 
-                /*
+                
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
-                */
+                
                 
             } else {
                 throw new Error('Error al redirigir al usuario');
@@ -185,5 +185,9 @@ function main() {
         console.log(`Servidor escuchando en http://localhost:${port}`);
     });
 }
-
+/*
+function validateResponse (response) {
+    return response && response.formAction && response.tokenWs;
+}
+*/
 export default main;
