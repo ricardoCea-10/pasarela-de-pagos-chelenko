@@ -31,7 +31,6 @@ function main() {
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
-        // res.render('form', { monto });
         res.sendFile(path.join(__dirname, '../views', 'form.html'));
     });
     
@@ -40,31 +39,35 @@ function main() {
         try {
             
             // Obtenemos datos desde formulario
-            const buyOrder = req.body.buyOrder;
-            const sessionId = req.body.sessionId;
-            const amount = req.body.amount; 
-
-            // imprimimos por consola datos
-            console.log("buyOrder: ", buyOrder);
-            console.log("sessionId: ", sessionId);
-            console.log("amount: ", amount);
-
-            /* 
-            * Configuración de la transacción: 
-            * - Generación de identificadores únicos para la orden de compra y la sesión.
-            * - Definición del monto a cobrar (en pesos) y la URL de retorno, que es la dirección a la que Transbank redirigirá después del pago.
+            let buyOrder = req.body.buyOrder;
+            let sessionId = req.body.sessionId;
+            let amount = req.body.amount; 
+            let returnUrl = req.body.returnUrl;
+            let IdGuesT = req.body.IdGuesT
             
-            let buyOrder = `orden_${Date.now()}`; // Crear un identificador único
-            let sessionId = `sesion_${Date.now()}`;
-            let amount = 9999; // Este es el monto que estás cobrando
-            */
+            // Llamamos a la función crear transacción
+            console.log("Datos recibidos del formulario: BuyOrder:", buyOrder, "| sessionId:", sessionId, "| amount:", amount, "| returnUrl:", returnUrl, "| IdGuest:", IdGuesT);
+            let response = await createTransaction(buyOrder, sessionId, amount, returnUrl);
 
-            let response = await createTransaction(buyOrder, sessionId, amount);
             if (response && response.formAction && response.tokenWs) {
+
+                // generamos objeto para pasar datos a formato JSON
+                let responseCreateTransaction = {
+                    amount: response.amount,
+                    buyOrder: response.buyOrder,
+                    tokenWs: response.tokenWs,
+                    formAction: response.formAction
+                }
+
+                res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
+                
+                /*
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
+                */
+                
             } else {
-                throw new Error('Error al crear la transacción');
+                throw new Error('Error al redirigir al usuario');
             }
         } catch (error) {
             console.error('Error al crear la transacción:', error);
@@ -128,9 +131,7 @@ function main() {
                         forma_abono: formaAbono, // Forma de abono interpretada
                         fecha_hora: confirmation.transaction_date,
                         codigo_transaccion: confirmation.buy_order,
-                        codigo_autorizacion: confirmation.authorization_code,
-                        // objeto a JSON:
-                        objeto_confirmacion: JSON.stringify(confirmation, null, 2) // Convierte el objeto a JSON
+                        codigo_autorizacion: confirmation.authorization_code
                     });
                 } else {
                     console.log("El pago ha sido rechazado");
@@ -145,7 +146,7 @@ function main() {
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada por timeout.');
-                res.send('Transacción abortada. Timeout.');
+                res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
             else {
