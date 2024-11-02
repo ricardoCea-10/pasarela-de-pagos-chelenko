@@ -96,6 +96,22 @@ function main() {
             if (tokenWs2) {
                 let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
+
+                let responseConfirmTransaction = {
+                    tokenWs2 : tokenWs2,
+                    vci : confirmation.vci,
+                    amount : confirmation.amount,
+                    status : confirmation.status,
+                    buyOrder : confirmation.buy_order,
+                    sessionId : confirmation.session_id,
+                    cardDetail : confirmation.card_detail,
+                    accountingDate : confirmation.accounting_date,
+                    transactionDate : confirmation.transaction_date,
+                    authorizationCode : confirmation.authorization_code,
+                    paymentTypeCode : confirmation.payment_type_code,
+                    responseCode : confirmation.response_code
+                }
+
                 if (confirmation.response_code === 0) {
                     let formaAbono;
                     switch (confirmation.payment_type_code) {
@@ -121,7 +137,7 @@ function main() {
                             formaAbono = 'Desconocido';
                     }
                     console.log("El pago ha sido aprobado");
-                    res.status(200).send('Pago aprobado. Redirigiendo a la página de pago aprobado...')
+                    res.status(200).send(responseConfirmTransaction);
                     /*
                     res.render('pago-aprobado', {
                         titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
