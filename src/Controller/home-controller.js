@@ -53,8 +53,6 @@ function main() {
 
                 // generamos objeto para pasar datos a formato JSON
                 let responseCreateTransaction = {
-                    amount: response.amount,
-                    buyOrder: response.buyOrder,
                     tokenWs: response.tokenWs,
                     formAction: response.formAction
                 }
@@ -96,7 +94,6 @@ function main() {
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
             if (tokenWs2) {
-                // await consultarTransaccion(tokenWs2);
                 let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
                 if (confirmation.response_code === 0) {
@@ -124,6 +121,8 @@ function main() {
                             formaAbono = 'Desconocido';
                     }
                     console.log("El pago ha sido aprobado");
+                    res.status(200).send('Pago aprobado. Redirigiendo a la página de pago aprobado...')
+                    /*
                     res.render('pago-aprobado', {
                         titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
                         tarjeta: confirmation.card_detail.card_number,
@@ -133,6 +132,7 @@ function main() {
                         codigo_transaccion: confirmation.buy_order,
                         codigo_autorizacion: confirmation.authorization_code
                     });
+                    */
                 } else {
                     console.log("El pago ha sido rechazado");
                     res.redirect('/pago-rechazado');

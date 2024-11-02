@@ -9,7 +9,7 @@ async function confirmTransaction(token2) {
         let token2Accion = token2;
 
         // Imprimo el 2do token por consola
-        console.log("ACA VA LA BANDERITA DEL 2DO TOKEN", token2Accion);
+        console.log("2DO TOKEN: ", token2Accion);
 
         if (response.response_code === 0) {
             console.log("Transacción confirmada desde Transbank:", response);
