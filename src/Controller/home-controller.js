@@ -163,7 +163,8 @@ function main() {
                     */
                 } else {
                     console.log("El pago ha sido rechazado");
-                    res.redirect('/pago-rechazado');
+                    res.status(200).send(responseConfirmTransaction);
+                   // res.redirect('/pago-rechazado');
                 }
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
