@@ -71,11 +71,12 @@ function main() {
                 */
                 
             } else {
-                throw new Error('Error al redirigir al usuario');
+                // throw new Error('Error en la respuesta de Transbank');
+                res.status(500).send('Error en la respuesta de Transbank');
             }
         } catch (error) {
             console.error('Error al crear la transacción:', error);
-            res.status(500).send('Error al iniciar la transacción');
+            res.status(500).send('Error al crear la transacción');
         }
     });
     
@@ -170,12 +171,14 @@ function main() {
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada.');
-                res.redirect('/pago-rechazado');
+                res.status(200).send('Transacción abortada.');
+                //res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada por timeout.');
-                res.redirect('/pago-rechazado');
+                res.status(200).send('Transacción abortada por timeout.');
+                //res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
             else {
@@ -184,7 +187,7 @@ function main() {
             }
         } catch (error) {
             console.error('Error al confirmar la transacción:', error);
-            res.status(500).send('Error en el servidor al procesar el pago.');
+            res.status(500).send('Error en el servidor al confirmar la transacción.');
         }
     });
 

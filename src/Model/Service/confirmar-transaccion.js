@@ -14,13 +14,13 @@ async function confirmTransaction(token2) {
         if (response.response_code === 0) {
             console.log("Transacción confirmada desde Transbank:", response);
         } else {
-            console.log("Error en la confirmación de la transacción desde Transbank", response);
+            console.log("Transacción rechazada desde Transbank", response);
         }
 
         return response;
         
     } catch (error) {
-        console.error("Error al confirmar la transacción:", error);
+        console.error("Error al confirmar la transacción desde Transbank:", error);
     }
 }
 
