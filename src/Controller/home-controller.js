@@ -82,17 +82,27 @@ function main() {
     
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
-        
-        console.log("BANDERA transactionIdGuesT:", transactionIdGuesT);
-        // Obtenemos datos del objeto transactionIdGuesT:
-        let idGuesT = transactionIdGuesT.idGuesT;
 
         // Obtener parámetros del cuerpo o query, según el método
         let tokenWs2 = req.body.token_ws || req.query.token_ws;
         let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
         let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
         let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
-    
+
+        console.log("BANDERA transactionIdGuesT:", transactionIdGuesT);
+        // Obtenemos datos del objeto transactionIdGuesT:
+        let idGuesT = transactionIdGuesT.idGuesT;
+        
+        // Creamos objeto con la data de Transbank:
+        let dataTransbank = {
+            idGuesT: idGuesT,
+            messageInfo: "",
+            token_ws: tokenWs2,
+            TBK_TOKEN: tbkToken,
+            TBK_ORDEN_COMPRA: tbkOrdenCompra,
+            TBK_ID_SESION: tbkIdSesion
+        }
+
         // Mostrar los datos recibidos para depuración
         console.log("Request Body:", req.body);
         console.log("Request Query:", req.query);
@@ -111,6 +121,7 @@ function main() {
 
                 let responseConfirmTransaction = {
                     idGuesT : idGuesT,
+                    messageInfo : "",
                     tokenWs2 : tokenWs2,
                     vci : confirmation.vci,
                     amount : confirmation.amount,
@@ -150,7 +161,8 @@ function main() {
                             formaAbono = 'Desconocido';
                     }
                     console.log("El pago ha sido aprobado");
-                    res.status(200).send(responseConfirmTransaction);
+                    responseConfirmTransaction.messageInfo = "El pago ha sido aprobado";
+                    res.status(200).json(responseConfirmTransaction);
                     /*
                     res.render('pago-aprobado', {
                         titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
@@ -164,7 +176,8 @@ function main() {
                     */
                 } else {
                     console.log("El pago ha sido rechazado");
-                    res.status(200).send(responseConfirmTransaction);
+                    responseConfirmTransaction.messageInfo = "El pago ha sido rechazado";
+                    res.status(200).json(responseConfirmTransaction);
                    // res.redirect('/pago-rechazado');
                 }
             }
