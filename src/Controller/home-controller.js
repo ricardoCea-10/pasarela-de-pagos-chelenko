@@ -199,6 +199,17 @@ function main() {
                 console.log('Transacción abortada.');
                 // Recuperar "idGuesT" utilizando el "sessionId" (TBK_ID_SESION) devuelto por Transbank:
                 idGuesT = transactionStore[dataTransbank.TBK_ID_SESION]; 
+                if (idGuesT) {
+                    console.log("");
+                    console.log("BANDERA 2 transactionStore:", transactionStore);
+                    console.log("BANDERA 3 idGuesT:", idGuesT);
+                    console.log("");
+                } else {
+                    console.log("");
+                    console.log("No se encontró un 'idGuesT' asociado a este 'sessionId'.");
+                    console.log("");
+                }
+
                 dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
                 dataTransbank.messageInfo = "Transacción abortada";
                 res.status(200).json(dataTransbank);
@@ -209,6 +220,17 @@ function main() {
                 console.log('Transacción abortada por timeout.');
                 // Recuperar "idGuesT" utilizando el "sessionId" (TBK_ID_SESION) devuelto por Transbank:
                 idGuesT = transactionStore[dataTransbank.TBK_ID_SESION]; 
+                if (idGuesT) {
+                    console.log("");
+                    console.log("BANDERA 2 transactionStore:", transactionStore);
+                    console.log("BANDERA 3 idGuesT:", idGuesT);
+                    console.log("");
+                } else {
+                    console.log("");
+                    console.log("No se encontró un 'idGuesT' asociado a este 'sessionId'.");
+                    console.log("");
+                }
+
                 dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
                 dataTransbank.messageInfo = "Transacción abortada por timeout";
                 res.status(200).json(dataTransbank);
