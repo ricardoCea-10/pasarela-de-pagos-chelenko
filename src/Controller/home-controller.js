@@ -219,6 +219,11 @@ function main() {
                 console.log('Error en el proceso de pago. No se encontraron parámetros.');
                 res.status(400).send('Error en el proceso de pago. No se encontraron parámetros.');
             }
+
+            // Una vez procesado, elimina el registro del transactionStore
+             transactionStore = {};
+             console.log("BANDERA 4 transactionStore ELIMINADO:", transactionStore);
+
         } catch (error) {
             console.error('Error al confirmar la transacción:', error);
             res.status(500).send('Error en el servidor al confirmar la transacción.');
