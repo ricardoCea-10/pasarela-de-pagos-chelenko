@@ -48,10 +48,6 @@ function main() {
             let returnUrl = req.body.returnUrl;
             let idGuesT = req.body.IdGuesT
 
-            /*
-            // Almacenamos datos en objeto para luego pasarlos a la función de confirmar transacción
-            transactionIdGuesT["idGuesT"] = idGuesT;
-            */
             // Asociar el `idGuesT` al `sessionId` en el objeto `transactionStore`
             transactionStore[sessionId] = idGuesT;
             console.log("BANDERA 1 transactionStore:", transactionStore);
@@ -96,13 +92,6 @@ function main() {
         let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
         let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
 
-        /*
-        console.log("BANDERA transactionIdGuesT:", transactionIdGuesT);
-        // Obtenemos datos del objeto transactionIdGuesT:
-        let idGuesT = transactionIdGuesT.idGuesT;
-        */
-    
-        
         // Creamos objeto con la data de Transbank:
         let dataTransbank = {
             idGuesT: idGuesT,
@@ -129,15 +118,19 @@ function main() {
                 let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
 
-                try {
-                    // Recuperar "idGuesT" utilizando el "sessionId" devuelto por Transbank 
-                    idGuesT = transactionStore[confirmation.session_id];
+                // Recuperar "idGuesT" utilizando el "sessionId" (session_id) devuelto por Transbank 
+                idGuesT = transactionStore[confirmation.session_id];
+                if (idGuesT) {
+                    console.log("");
                     console.log("BANDERA 2 transactionStore:", transactionStore);
                     console.log("BANDERA 3 idGuesT:", idGuesT);
-                } catch (error) {
-                    console.log("Error al recuperar el idGuesT:", error);
+                    console.log("");
+                } else {
+                    console.log("");
+                    console.log("No se encontró un 'idGuesT' asociado a este 'sessionId'.");
+                    console.log("");
                 }
-                
+
                 // generamos objeto con datos de respuesta
                 let responseConfirmTransaction = {
                     idGuesT : idGuesT,
@@ -204,6 +197,9 @@ function main() {
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada.');
+                // Recuperar "idGuesT" utilizando el "sessionId" (TBK_ID_SESION) devuelto por Transbank:
+                idGuesT = transactionStore[dataTransbank.TBK_ID_SESION]; 
+                dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
                 dataTransbank.messageInfo = "Transacción abortada";
                 res.status(200).json(dataTransbank);
                 //res.redirect('/pago-rechazado');
@@ -211,6 +207,9 @@ function main() {
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
                 console.log('Transacción abortada por timeout.');
+                // Recuperar "idGuesT" utilizando el "sessionId" (TBK_ID_SESION) devuelto por Transbank:
+                idGuesT = transactionStore[dataTransbank.TBK_ID_SESION]; 
+                dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
                 dataTransbank.messageInfo = "Transacción abortada por timeout";
                 res.status(200).json(dataTransbank);
                 //res.redirect('/pago-rechazado');
