@@ -29,8 +29,8 @@ function main() {
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../views'));
 
-    // Objetos para almacenar información entre las diferentes rutas:
-    let transactionIdGuesT = {};
+    // Objeto para almacenar el `idGuesT` para cada `tokenWs`
+    let transactionStore = {};
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
@@ -48,8 +48,13 @@ function main() {
             let returnUrl = req.body.returnUrl;
             let idGuesT = req.body.IdGuesT
 
+            /*
             // Almacenamos datos en objeto para luego pasarlos a la función de confirmar transacción
             transactionIdGuesT["idGuesT"] = idGuesT;
+            */
+            // Asociar el `idGuesT` al `sessionId` en el objeto `transactionStore`
+            transactionStore[sessionId] = idGuesT;
+            console.log("BANDERA 1 transactionStore:", transactionStore);
             
             // Llamamos a la función crear transacción
             console.log("Datos recibidos del formulario: BuyOrder:", buyOrder, "| sessionId:", sessionId, "| amount:", amount, "| returnUrl:", returnUrl, "| IdGuest:", idGuesT);
@@ -83,15 +88,20 @@ function main() {
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
 
+        let idGuesT; // Declaro idGuesT
+
         // Obtener parámetros del cuerpo o query, según el método
         let tokenWs2 = req.body.token_ws || req.query.token_ws;
         let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
         let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
         let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
 
+        /*
         console.log("BANDERA transactionIdGuesT:", transactionIdGuesT);
         // Obtenemos datos del objeto transactionIdGuesT:
         let idGuesT = transactionIdGuesT.idGuesT;
+        */
+    
         
         // Creamos objeto con la data de Transbank:
         let dataTransbank = {
@@ -118,6 +128,15 @@ function main() {
             if (tokenWs2) {
                 let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
+
+                try {
+                    // Recuperar "idGuesT" utilizando el "sessionId" devuelto por Transbank 
+                    idGuesT = transactionStore[confirmation.session_id];
+                    console.log("BANDERA 2 transactionStore:", transactionStore);
+                    console.log("BANDERA 3 idGuesT:", idGuesT);
+                } catch (error) {
+                    console.log("Error al recuperar el idGuesT:", error);
+                }
                 
                 // generamos objeto con datos de respuesta
                 let responseConfirmTransaction = {
