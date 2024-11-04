@@ -2,9 +2,11 @@ import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
+import axios from 'axios';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
+import postData from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -95,7 +97,6 @@ function main() {
         // Creamos objeto con la data de Transbank:
         let dataTransbank = {
             idGuesT: idGuesT,
-            messageInfo: "",
             token_ws: tokenWs2,
             TBK_TOKEN: tbkToken,
             TBK_ORDEN_COMPRA: tbkOrdenCompra,
@@ -133,9 +134,7 @@ function main() {
 
                 // generamos objeto con datos de respuesta
                 let responseConfirmTransaction = {
-                    idGuesT : idGuesT,
-                    messageInfo : "",
-                    tokenWs2 : tokenWs2,
+                    guest : idGuesT,
                     vci : confirmation.vci,
                     amount : confirmation.amount,
                     status : confirmation.status,
@@ -146,8 +145,14 @@ function main() {
                     transactionDate : confirmation.transaction_date,
                     authorizationCode : confirmation.authorization_code,
                     paymentTypeCode : confirmation.payment_type_code,
-                    responseCode : confirmation.response_code
+                    responseCode : confirmation.response_code,
+                    installmentsAmount : confirmation.installments_amount,
+                    installmentsNumber : confirmation.installments_number,
+                    balance : confirmation.balance
                 }
+
+                // Enviamos objeto responseConfirmTransaction a base de datos:
+                postData(responseConfirmTransaction);
 
                 if (confirmation.response_code === 0) {
                     let formaAbono;
@@ -174,7 +179,6 @@ function main() {
                             formaAbono = 'Desconocido';
                     }
                     console.log("El pago ha sido aprobado");
-                    responseConfirmTransaction.messageInfo = "El pago ha sido aprobado"; // anadimos respuesta aprobada
                     res.status(200).json(responseConfirmTransaction);
                     /*
                     res.render('pago-aprobado', {
@@ -189,7 +193,6 @@ function main() {
                     */
                 } else {
                     console.log("El pago ha sido rechazado");
-                    responseConfirmTransaction.messageInfo = "El pago ha sido rechazado";  // anadimos respuesta rechazada
                     res.status(200).json(responseConfirmTransaction);
                    // res.redirect('/pago-rechazado');
                 }
@@ -211,7 +214,6 @@ function main() {
                 }
 
                 dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
-                dataTransbank.messageInfo = "Transacción abortada";
                 res.status(200).json(dataTransbank);
                 //res.redirect('/pago-rechazado');
             }
@@ -232,7 +234,6 @@ function main() {
                 }
 
                 dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
-                dataTransbank.messageInfo = "Transacción abortada por timeout";
                 res.status(200).json(dataTransbank);
                 //res.redirect('/pago-rechazado');
             }
@@ -257,6 +258,7 @@ function main() {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
     
+    /*
     // Ruta para consultar el estado de una transacción
     app.get('/consultar-transaccion/:token', async (req, res) => {
         const token = req.params.token; // Obtener el token de la URL
@@ -272,6 +274,54 @@ function main() {
             res.status(500).send('Error al consultar el estado de la transacción');
         }
     });
+
+    */
+
+
+    app.get('/enviar-datos', async (req, res) => {
+
+        try {
+            const response = await axios.get("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/guests");
+            res.json(response.data);
+        } catch (error) {
+            console.error('Error al enviar datos:', error);
+            res.status(500).send('Error al enviar datos');
+            
+        }
+
+    })
+
+
+    app.get('/postear-datos', async (req, res) => {
+
+        const dataTransbank = [{
+            "guest": "671bb169dedb3ef3b9904876",
+            "vci": "TSY",
+            "amount": 10000,
+            "status": "AUTHORIZED",
+            "buy_order": "ordenCompra12345678",
+            "session_id": "sesion1234557545",
+            "card_detail": {
+                "card_number": 6623,
+            },
+            "accounting_date": "0522",
+            "transaction_date": "2019-05-22T16:41:21.063Z",
+            "authorization_code": "1213",
+            "payment_type_code": "VN",
+            "response_code": 0,
+            "installments_number": 0
+        }];
+
+        try {
+            const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
+            res.json(response.data);
+        } catch (error) {
+            console.error('Error al enviar datos:', error);
+            res.status(500).send('Error al enviar datos');
+            
+        }
+
+    })
    
 
     app.listen(port, () => {
