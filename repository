@@ -1,0 +1,10 @@
+const express = require(ˈexpressˈ); //importar paquete
+const morgan = require(ˈmorganˈ);
+const app = express()//crear instancia
+const mongoose = require(ˈmongooseˈ); 
+const port = process.env.PORT|| 3000
+
+//conexion a base de datos (mongoDB por medio de mongoose)
+mongoose.connect("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank")
+.then(()=> console.log("conexion exitosa a la base de datos"))
+.catch((error)=> console.log("error al conectar a la base de datos:", error))// not ok
