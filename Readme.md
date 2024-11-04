@@ -60,6 +60,7 @@ Ejecutar:
 - npm install express
 - npm i morgan
 - npm install ejs
+- npm install axios
 
 Luego agregar  "type" : "module" al archivo package.json para habilitar el uso de ES Modules.
 
