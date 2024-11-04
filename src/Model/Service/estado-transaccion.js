@@ -1,9 +1,9 @@
 import pkg from 'transbank-sdk'; // Importa el SDK de Transbank
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg; // Desestructura los componentes necesarios
 
-const token = 'TOKEN_DE_LA_TRANSACCION'; // Reemplaza con un token válido
+// const token = 'TOKEN_DE_LA_TRANSACCION'; // Reemplaza con un token válido
 
-async function consultarTransaccion() {
+async function consultarTransaccion(token) {
     try {
         // Crea una nueva instancia de la transacción con las opciones requeridas
         const tx = new WebpayPlus.Transaction(
