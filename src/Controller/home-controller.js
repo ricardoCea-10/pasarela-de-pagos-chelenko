@@ -6,6 +6,7 @@ import axios from 'axios';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
+import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
 import postData from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
@@ -261,7 +262,7 @@ function main() {
     });
     
     
-    // Ruta para consultar el estado de una transacción
+    // Ruta para consultar el estado de una transacción a Transbank
     app.get('/consultar-transaccion', async (req, res) => {
         
         const token = req.query.token; // Obtener el token de los parámetros de consulta (query)
@@ -282,6 +283,35 @@ function main() {
         } catch (error) {
             console.error('Error al consultar la transacción:', error);
             res.status(500).send('Error al consultar el estado de la transacción');
+        }
+    });
+
+    // Ruta para Reversar o Anular un pago en Transbank
+    app.delete('/anular-transaccion', async (req, res) => {
+
+        // obtenemos token y amount por body:
+        const token = req.body.token;
+        const amount = req.body.amount;
+
+        // confirmamos obtención de token
+        if (token && amount) {
+            console.log('Token recibido por body:', token);
+        } else {
+            console.log('No se recibió token por body.');
+        }
+
+        try {
+            // Enviamos solicitud de reversar o anular un pago a Transbank
+            const response = await refundTransaccion(token, amount);
+            if (response) {
+                res.status(200).json(response); // Retornar la respuesta en formato JSON
+            } else {
+                res.status(404).send('Transacción no encontrada. No se pudo anular');
+            }
+        } catch (error) {
+
+            console.error('Error al anular la transacción:', error);
+            res.status(500).send('Error al anular la transacción');
         }
     });
 
