@@ -1,13 +1,12 @@
 import pkg from 'transbank-sdk';
 const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
-import express from 'express';
+import express, { json } from 'express';
 import morgan from 'morgan';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
-import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
-import Transaction from '../Model/Repository/repository.js';//importar transaction  
+import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción  
+import axios from 'axios';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -21,12 +20,6 @@ const __dirname = dirname(__filename);              // Obtener el nombre del dir
 function main() {
     const app = express();
     const port = 3000;
-
-    //conexion a base de datos (mongoDB por medio de mongoose)
-    mongoose.connect(process.env.URI_MONGO_ATLAS_GET)
-
-    .then(()=> console.log("conexion exitosa a la base de datos"))
-    .catch((error)=> console.log("error al conectar a la base de datos:", error))// not ok
 
     // Configurar Express para servir archivos estáticos (como CSS)
     app.use(express.static('public'));
@@ -183,8 +176,20 @@ function main() {
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
     });
+
+    app.post('/postear-datos', async(req, res) => {
+
+        IdGuest
+
+        try{
+            const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank",)  
+            res,json(response.data)
+        } catch (error)  {
+            console.error('eror al enviar datos:', error);
+            res.status(500).send('error al enviar datos');
+        }
+    })
+    
+
 }
-
-
-
 export default main;
