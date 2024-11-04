@@ -7,7 +7,7 @@ async function postData(data) {
     let dataTransbank = data;
     console.log("BANDERA 5. dataTransbank (Base datos): ", dataTransbank);
 
-    /*
+    
     try {
         const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
         console.log("BANDERA 6. response.data: ", response.data);
@@ -17,7 +17,7 @@ async function postData(data) {
         return { error: 'Error al enviar datos' };
         
     }
-    */
+    
 
 }
 

@@ -140,10 +140,12 @@ function main() {
                     status : confirmation.status,
                     buyOrder : confirmation.buy_order,
                     sessionId : confirmation.session_id,
-                    cardDetail : confirmation.card_detail,
+                    cardDetail: {
+                        cardNumber: confirmation.card_detail.card_number, // Campo actualizado
+                      },
                     accountingDate : confirmation.accounting_date,
                     transactionDate : confirmation.transaction_date,
-                    authorizationCode : confirmation.authorization_code,
+                    autorizationCode : confirmation.authorization_code, // Campo con error ortográfico
                     paymentTypeCode : confirmation.payment_type_code,
                     responseCode : confirmation.response_code,
                     installmentsAmount : confirmation.installments_amount,
@@ -152,7 +154,7 @@ function main() {
                 }
 
                 // Enviamos objeto responseConfirmTransaction a base de datos:
-                postData(responseConfirmTransaction);
+                await postData(responseConfirmTransaction);
 
                 if (confirmation.response_code === 0) {
                     let formaAbono;
