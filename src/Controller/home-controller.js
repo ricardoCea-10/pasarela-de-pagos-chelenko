@@ -260,14 +260,16 @@ function main() {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
     
-    /*
+    
     // Ruta para consultar el estado de una transacción
-    app.get('/consultar-transaccion/:token', async (req, res) => {
-        const token = req.params.token; // Obtener el token de la URL
+    app.get('/consultar-transaccion/', async (req, res) => {
+        //const token = req.params.token; // Obtener el token de la URL
+        const token = req.query.token; // Obtener el token de los parámetros de consulta (query)
+        console.log('Token recibido por query:', token);
         try {
             const response = await consultarTransaccion(token);
             if (response) {
-                res.json(response); // Retornar la respuesta en formato JSON
+                res.status(200).json(response); // Retornar la respuesta en formato JSON
             } else {
                 res.status(404).send('Transacción no encontrada');
             }
@@ -276,9 +278,6 @@ function main() {
             res.status(500).send('Error al consultar el estado de la transacción');
         }
     });
-
-    */
-
 
     app.get('/enviar-datos', async (req, res) => {
 
@@ -293,37 +292,6 @@ function main() {
 
     })
 
-
-    app.get('/postear-datos', async (req, res) => {
-
-        const dataTransbank = [{
-            "guest": "671bb169dedb3ef3b9904876",
-            "vci": "TSY",
-            "amount": 10000,
-            "status": "AUTHORIZED",
-            "buy_order": "ordenCompra12345678",
-            "session_id": "sesion1234557545",
-            "card_detail": {
-                "card_number": 6623,
-            },
-            "accounting_date": "0522",
-            "transaction_date": "2019-05-22T16:41:21.063Z",
-            "authorization_code": "1213",
-            "payment_type_code": "VN",
-            "response_code": 0,
-            "installments_number": 0
-        }];
-
-        try {
-            const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
-            res.json(response.data);
-        } catch (error) {
-            console.error('Error al enviar datos:', error);
-            res.status(500).send('Error al enviar datos');
-            
-        }
-
-    })
    
 
     app.listen(port, () => {
