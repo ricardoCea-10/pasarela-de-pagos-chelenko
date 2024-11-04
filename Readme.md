@@ -60,7 +60,8 @@ Ejecutar:
 - npm install express
 - npm i morgan
 - npm install ejs
-
+- npm i dotenv 
+- npm i mongoose
 Luego agregar  "type" : "module" al archivo package.json para habilitar el uso de ES Modules.
 
 ===================================================================
