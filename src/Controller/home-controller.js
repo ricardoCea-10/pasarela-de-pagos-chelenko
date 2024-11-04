@@ -301,7 +301,7 @@ function main() {
         }
 
         try {
-            // Enviamos solicitud de reversar o anular un pago a Transbank
+            // Enviamos solicitud de reversar o anular un pago a Transbank, recibimos una respuesta.
             const response = await refundTransaccion(token, amount);
             if (response) {
                 res.status(200).json(response); // Retornar la respuesta en formato JSON
