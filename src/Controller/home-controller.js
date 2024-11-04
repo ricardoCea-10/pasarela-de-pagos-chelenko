@@ -7,7 +7,7 @@ import createTransaction, { amount as monto } from '../Model/Service/crear-trans
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
-import postData from '../Model/Repository/data.js';
+import {getData, postData, getDataById} from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -155,7 +155,7 @@ function main() {
                 }
 
                 // Enviamos objeto responseConfirmTransaction a base de datos:
-                await postData(responseConfirmTransaction);
+                const data = await postData(responseConfirmTransaction);
 
                 if (confirmation.response_code === 0) {
                     let formaAbono;
@@ -261,7 +261,10 @@ function main() {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
     
-    
+//#################################################################################################### 
+// ********************************* METODOS DE TRANSBANK ********************************************
+//####################################################################################################    
+
     // Ruta para consultar el estado de una transacción a Transbank
     app.get('/consultar-transaccion', async (req, res) => {
         
@@ -315,15 +318,34 @@ function main() {
         }
     });
 
-    app.get('/enviar-datos', async (req, res) => {
+//#################################################################################################### 
+// ********************************* CONSULTAS A BASE DE DATOS ***************************************
+//#################################################################################################### 
+
+    // Consultar todas las transacciones
+    app.get('/base-datos/consultar-transacciones', async (req, res) => {
 
         try {
-            const response = await axios.get("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/guests");
-            res.json(response.data);
+            let response = await getData()
+            res.status(200).json(response);
         } catch (error) {
-            console.error('Error al enviar datos:', error);
-            res.status(500).send('Error al enviar datos');
-            
+            console.error('Error al consultar datos:', error);
+            res.status(500).send('Error al consultar datos');
+        }
+
+    })
+
+    // Consultar las transacciones por id
+    app.get('/base-datos/consultar-transacciones/:id', async (req, res) => {
+
+        let id = req.params.id;
+
+        try {
+            let response = await getDataById(id)
+            res.status(200).json(response);
+        } catch (error) {
+            console.error('Error al consultar datos por id:', error);
+            res.status(500).send('Error al consultar datos por id');
         }
 
     })
