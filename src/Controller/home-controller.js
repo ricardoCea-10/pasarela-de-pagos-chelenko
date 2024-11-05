@@ -37,10 +37,12 @@ function main() {
 // ********************************* RUTAS HTTP PARA FLUJO DE PAGO ***********************************
 //####################################################################################################     
 
+    /*
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, '../views', 'form.html'));
     });
+    */
     
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', async (req, res) => {
