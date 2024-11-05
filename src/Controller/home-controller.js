@@ -7,7 +7,7 @@ import createTransaction, { amount as monto } from '../Model/Service/crear-trans
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
-import {getData, postData, getDataById} from '../Model/Repository/data.js';
+import {getData, postData, getDataById, updateData} from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -326,7 +326,7 @@ function main() {
     app.get('/base-datos/consultar-transacciones', async (req, res) => {
 
         try {
-            let response = await getData()
+            let response = await getData();
             res.status(200).json(response);
         } catch (error) {
             console.error('Error al consultar datos:', error);
@@ -339,13 +339,32 @@ function main() {
     app.get('/base-datos/consultar-transacciones/:id', async (req, res) => {
 
         let id = req.params.id;
+        console.log("Consulta de transacción por id:", id);
 
         try {
-            let response = await getDataById(id)
+            let response = await getDataById(id);
             res.status(200).json(response);
         } catch (error) {
             console.error('Error al consultar datos por id:', error);
             res.status(500).send('Error al consultar datos por id');
+        }
+
+    })
+
+    // Actualizar una transaccion por id:
+    app.put('/base-datos/actualizar-transaccion/:id', async (req, res) => {
+
+        let id = req.params.id;
+        let data = req.body;
+
+        console.log("BANDERA 11 req.body:", data, " & ", id);
+
+        try {
+            let response = await updateData(id, data);
+            res.status(200).json(response);
+        } catch (error) {
+            console.error('Error al actualizar datos de transacción por id:', error);
+            res.status(500).send('Error al actualizar datos de transacción por id');
         }
 
     })

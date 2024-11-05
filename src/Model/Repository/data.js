@@ -51,4 +51,22 @@ async function postData(data) {
 
 }
 
-export { getData, getDataById, postData };
+// Funcion para actualizar la data por su id:
+async function updateData(id, data) {
+
+    let dataTransbank = data;
+    console.log("BANDERA 9. dataTransbank (Base datos): ", dataTransbank);
+
+    try {
+        const response = await axios.put(`http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank/${id}`, dataTransbank);
+        console.log("BANDERA 10. response.data: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('BANDERA 10. Error al editar datos:', error);
+        return { error: 'Error al editar datos' };
+
+    }
+
+}
+
+export { getData, getDataById, postData, updateData };
