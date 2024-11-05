@@ -1,73 +1,98 @@
-**Integración de Transbank | Chelenko Lodge**
+
+# Integración de Transbank | Chelenko Lodge
 
 ===================================================================
 
-**Flujo de la Aplicación**
+## Flujo de la Aplicación
 
-1. Inicio de la Transacción
+1. **Inicio de la Transacción**
 
-Cuando un usuario accede a la página principal de la aplicación, el servidor ejecuta la ruta configurada en home-controller.js. En este punto:
+   Al acceder a la página principal de la aplicación, el servidor ejecuta la ruta configurada en `home-controller.js`, en donde:
 
-Se llama a la función createTransaction() desde crear-transaccion.js.
-Esta función genera un identificador único para la orden y la sesión, establece el monto a cobrar y define la URL de retorno a la que Transbank redirigirá al usuario después de la transacción.
-Una vez que se crea la transacción, se devuelve un objeto que incluye el tokenWs y la formAction, los cuales se pasan a la vista form.ejs.
+   - Se llama a la función `createTransaction()` desde `crear-transaccion.js`, generando un identificador único (`buyOrder` y `sessionId`), el monto a cobrar y la `returnUrl`.
+   - La transacción retorna un objeto que incluye el `tokenWs` y la `formAction`, los cuales se pasan a la vista `form.ejs` para el proceso de pago.
 
-2. Pantalla de Pago
+2. **Pantalla de Pago**
 
-La vista form.ejs muestra al usuario la información de la transacción y un botón para pagar. Cuando el usuario hace clic en el botón de pago:
+   La vista `form.ejs` muestra información de la transacción y un botón para pagar. Al hacer clic en el botón de pago:
 
-Se envía una solicitud POST a la ruta /iniciar-pago.
-Esta ruta redirige al usuario a la página de pago de Webpay usando el tokenWs recibido.
+   - Se envía una solicitud POST a la ruta `/iniciar-pago`.
+   - Esta ruta redirige al usuario a la página de pago de Webpay usando el `tokenWs` recibido.
 
-3. Procesamiento de la Transacción
+3. **Procesamiento de la Transacción**
 
-El usuario ingresa los detalles de su tarjeta en la interfaz de Webpay. Después de que el usuario envía su información de pago, Transbank procesa la transacción y redirige al usuario de vuelta a la aplicación a la URL configurada (en returnUrl).
+   El usuario ingresa los detalles de su tarjeta en Webpay, que procesa la transacción y redirige al usuario a la URL configurada (`returnUrl`) en la aplicación para ver el estado.
 
-4. Manejo del Retorno de Transbank
+4. **Consulta del Estado de la Transacción**
 
-La aplicación maneja el retorno en la ruta /retorno definida en home-controller.js. Dependiendo del método de la solicitud (POST o GET):
+   - La ruta `/estado-transaccion` (en `estado-transaccion.js`) consulta el estado actual de una transacción en Webpay Plus usando la función `checkTransaccion()`.
+   - Esta función se ejecuta al recibir el token (de prueba o real), que confirma el estado de la transacción (aprobada, pendiente o rechazada).
 
-Se extrae el token_ws.
-Se llama a la función confirmTransaction() de confirmar-transaccion.js para verificar el estado de la transacción.
-Si la transacción es aprobada (código de respuesta 0), se renderiza la vista pago-aprobado.ejs, mostrando los detalles de la transacción.
-Si la transacción es rechazada, el usuario es redirigido a pago-rechazado.html.
+5. **Manejo del Retorno de Transbank**
 
-5. Resultados de la Transacción
+   En `home-controller.js`, se maneja la ruta `/retorno`, donde:
+   
+   - Se recibe el `token_ws` y se llama a `confirmTransaction()` en `confirmar-transaccion.js` para verificar el estado final.
+   - Dependiendo del resultado:
+     - Si `response_code` es `0`, el usuario se redirige a la vista `pago-aprobado.ejs`.
+     - Si no, el usuario es redirigido a `pago-rechazado.html`.
 
-a. Pago Aprobado
-En pago-aprobado.ejs, se muestran detalles como el nombre del titular (a completar), el número de tarjeta (enmascarado), el monto pagado, la forma de abono, la fecha y hora de la transacción, el código de transacción y el código de autorización.
+6. **Almacenamiento y Gestión de Datos en Base de Datos**
 
-b. Pago Rechazado
-Si el pago es rechazado, la vista pago-rechazado.html informa al usuario que el pago no pudo ser procesado, con una opción para volver a intentar.
+   En la carpeta `repository`, `data.js` contiene funciones para almacenar y gestionar la transacción en una base de datos MongoDB en la nube mediante la API en `http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank`.
 
+   - **`postData()`**: Almacena los datos de la transacción en la base de datos al crearla, incluyendo `buy_order`, `session_id`, `monto`, y `token`.
+   - **`confirmTransaction()`**: Al confirmar la transacción, almacena en la base de datos detalles como `response_code`, `authorization_code`, `transaction_date` y el estado final.
+   - **Funcionalidades Adicionales**: Se incluyen también funciones `getData`, `getDataById`, `updateData`, y `deleteData` en caso de necesitar la consulta o administración de registros.
+
+7. **Resultados de la Transacción**
+
+   - **Pago Aprobado**: `pago-aprobado.ejs` muestra detalles como nombre del titular, número de tarjeta (enmascarado), monto, forma de abono, fecha y hora, código de transacción y código de autorización.
+   - **Pago Rechazado**: `pago-rechazado.html` informa al usuario del fallo de pago, con opción para intentar de nuevo.
+
+8. **Anulación o Reversión de Transacción**
+
+   La aplicación también permite anular o revertir transacciones. Para esto, se utiliza la función `refundTransaccion()` en `reversar-anular-transaccion.js`. Esta función se puede invocar en los siguientes escenarios:
+
+   - Si se requiere revertir una transacción después de que ha sido confirmada.
+   - Si se necesita anular una transacción antes de que sea procesada por Transbank.
+
+   La función tomará como parámetros el `token` de la transacción y el `monto` a revertir.
+  
 ===================================================================
 
-**Dependencias y Configuración**
+## Dependencias y Configuración
 
 Para ejecutar la aplicación, asegúrate de tener las siguientes dependencias instaladas:
 
-express: para la creación del servidor.
-morgan: para el registro de solicitudes.
-ejs: para el renderizado de vistas.
-transbank-sdk: para la integración con la pasarela de pagos.
-Ejecuta los siguientes comandos para instalar las dependencias necesarias:
+- `express`: servidor web
+- `morgan`: registro de solicitudes
+- `ejs`: renderizado de vistas
+- `transbank-sdk`: integración de Webpay
+- `axios`: solicitudes HTTP a la API de la base de datos
 
-Ejecutar:
+Instala las dependencias ejecutando:
 
-- npm install
-- npm install transbank-sdk 
-- npm init -y
-- npm install express
-- npm i morgan
-- npm install ejs
-- npm i axios
+```bash
+npm install
+npm install transbank-sdk 
+npm init -y
+npm install express
+npm i morgan
+npm install ejs
+npm i axios
+```
 
-Luego agregar  "type" : "module" al archivo package.json para habilitar el uso de ES Modules.
+Agrega `"type": "module"` al archivo `package.json` para habilitar el uso de ES Modules.
 
 ===================================================================
 
-### Para ejecutar:
+## Ejecución del Proyecto
 
-- node index.js
+Ejecuta el servidor con:
 
-Accede a http://localhost:3000 en tu navegador.
+```bash
+node index.js
+```
+
+Luego accede a (http://localhost:3000) en tu navegador para iniciar el flujo de la aplicación.
