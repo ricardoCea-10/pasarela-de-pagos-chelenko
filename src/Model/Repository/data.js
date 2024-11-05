@@ -68,5 +68,17 @@ async function updateData(id, data) {
     }
 
 }
+ // Función para eliminar datos en base de datos por id:
+async function deleteData(id) {
 
-export { getData, getDataById, postData, updateData };
+    try {
+        let response = await axios.delete(`http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank/${id}`);
+        console.log("BANDERA 9. response.data (eliminar): ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('BANDERA 9. Error al eliminar datos:', error);
+        return { error: 'Error al eliminar datos' };
+    }
+}
+
+export { getData, getDataById, postData, updateData, deleteData };

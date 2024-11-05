@@ -7,7 +7,7 @@ import createTransaction, { amount as monto } from '../Model/Service/crear-trans
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
-import {getData, postData, getDataById, updateData} from '../Model/Repository/data.js';
+import {getData, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -369,8 +369,20 @@ function main() {
 
     })
 
-   
+    // Ruta para eliminar  datos usando un  id
+    app.delete('/base-datos/eliminar-transaccion/:id', async (req, res) => {
+    let id = req.params.id;
+    try {
+        let response = await deleteData(id); // Llamada a la función de eliminar
+        console.log("bandera 15 :mensaje borrado correctamente")
+        res.json(response);
+    } catch (error) {
+        console.error('Error al eliminar datos de la transacción:', error);
+        res.status(500).send('Error al eliminar la transacción');
+       }
+    });
 
+   
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
     });
