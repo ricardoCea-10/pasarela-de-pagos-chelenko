@@ -5,8 +5,9 @@ import morgan from 'morgan';
 import axios from 'axios';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
-import consultarTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
-import postData from '../Model/Repository/data.js';
+import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
+import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
+import {getData, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -154,7 +155,7 @@ function main() {
                 }
 
                 // Enviamos objeto responseConfirmTransaction a base de datos:
-                await postData(responseConfirmTransaction);
+                const data = await postData(responseConfirmTransaction);
 
                 if (confirmation.response_code === 0) {
                     let formaAbono;
@@ -260,14 +261,25 @@ function main() {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
     
-    /*
-    // Ruta para consultar el estado de una transacción
-    app.get('/consultar-transaccion/:token', async (req, res) => {
-        const token = req.params.token; // Obtener el token de la URL
+//#################################################################################################### 
+// ********************************* METODOS DE TRANSBANK ********************************************
+//####################################################################################################    
+
+    // Ruta para consultar el estado de una transacción a Transbank
+    app.get('/consultar-transaccion', async (req, res) => {
+        
+        const token = req.query.token; // Obtener el token de los parámetros de consulta (query)
+        // confirmamos obtención de token
+        if (token) {
+            console.log('Token recibido por query:', token);
+        } else {
+            console.log('No se recibió token por query.');
+        }
+
         try {
-            const response = await consultarTransaccion(token);
+            const response = await checkTransaccion(token);
             if (response) {
-                res.json(response); // Retornar la respuesta en formato JSON
+                res.status(200).json(response); // Retornar la respuesta en formato JSON
             } else {
                 res.status(404).send('Transacción no encontrada');
             }
@@ -277,58 +289,105 @@ function main() {
         }
     });
 
-    */
+    // Ruta para Reversar o Anular un pago en Transbank
+    app.delete('/anular-transaccion', async (req, res) => {
 
+        // obtenemos token y amount por body:
+        const token = req.body.token;
+        const amount = req.body.amount;
 
-    app.get('/enviar-datos', async (req, res) => {
+        // confirmamos obtención de token
+        if (token && amount) {
+            console.log('Token recibido por body:', token);
+        } else {
+            console.log('No se recibió token por body.');
+        }
 
         try {
-            const response = await axios.get("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/guests");
-            res.json(response.data);
+            // Enviamos solicitud de reversar o anular un pago a Transbank, recibimos una respuesta.
+            const response = await refundTransaccion(token, amount);
+            if (response) {
+                res.status(200).json(response); // Retornar la respuesta en formato JSON
+            } else {
+                res.status(404).send('Transacción no encontrada. No se pudo anular');
+            }
         } catch (error) {
-            console.error('Error al enviar datos:', error);
-            res.status(500).send('Error al enviar datos');
-            
+
+            console.error('Error al anular la transacción:', error);
+            res.status(500).send('Error al anular la transacción');
+        }
+    });
+
+//#################################################################################################### 
+// ********************************* CONSULTAS A BASE DE DATOS ***************************************
+//#################################################################################################### 
+
+    // Consultar todas las transacciones
+    app.get('/base-datos/consultar-transacciones', async (req, res) => {
+
+        try {
+            let response = await getData();
+            res.status(200).json(response);
+        } catch (error) {
+            console.error('Error al consultar datos:', error);
+            res.status(500).send('Error al consultar datos');
         }
 
     })
 
+    // Consultar las transacciones por id
+    app.get('/base-datos/consultar-transacciones/:id', async (req, res) => {
 
-    app.get('/postear-datos', async (req, res) => {
-
-        const dataTransbank = [{
-            "guest": "671bb169dedb3ef3b9904876",
-            "vci": "TSY",
-            "amount": 10000,
-            "status": "AUTHORIZED",
-            "buy_order": "ordenCompra12345678",
-            "session_id": "sesion1234557545",
-            "card_detail": {
-                "card_number": 6623,
-            },
-            "accounting_date": "0522",
-            "transaction_date": "2019-05-22T16:41:21.063Z",
-            "authorization_code": "1213",
-            "payment_type_code": "VN",
-            "response_code": 0,
-            "installments_number": 0
-        }];
+        let id = req.params.id;
+        console.log("Consulta de transacción por id:", id);
 
         try {
-            const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
-            res.json(response.data);
+            let response = await getDataById(id);
+            res.status(200).json(response);
         } catch (error) {
-            console.error('Error al enviar datos:', error);
-            res.status(500).send('Error al enviar datos');
-            
+            console.error('Error al consultar datos por id:', error);
+            res.status(500).send('Error al consultar datos por id');
         }
 
     })
+
+    // Actualizar una transaccion por id:
+    app.put('/base-datos/actualizar-transaccion/:id', async (req, res) => {
+
+        let id = req.params.id;
+        let data = req.body;
+
+        console.log("BANDERA 11 req.body:", data, " & ", id);
+
+        try {
+            let response = await updateData(id, data);
+            res.status(200).json(response);
+        } catch (error) {
+            console.error('Error al actualizar datos de transacción por id:', error);
+            res.status(500).send('Error al actualizar datos de transacción por id');
+        }
+
+    })
+
+    // Ruta para eliminar  datos usando un  id
+    app.delete('/base-datos/eliminar-transaccion/:id', async (req, res) => {
+    let id = req.params.id;
+    try {
+        let response = await deleteData(id); // Llamada a la función de eliminar
+        console.log("bandera 15 :mensaje borrado correctamente")
+        res.json(response);
+    } catch (error) {
+        console.error('Error al eliminar datos de la transacción:', error);
+        res.status(500).send('Error al eliminar la transacción');
+       }
+    });
+
    
-
     app.listen(port, () => {
         console.log(`Servidor escuchando en http://localhost:${port}`);
     });
 }
+
+
 
 export default main;
