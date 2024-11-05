@@ -1,8 +1,5 @@
-import pkg from 'transbank-sdk';
-const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
 import express from 'express';
 import morgan from 'morgan';
-import axios from 'axios';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
@@ -34,6 +31,10 @@ function main() {
 
     // Objeto para almacenar el `idGuesT` para cada `tokenWs`
     let transactionStore = {};
+
+//#################################################################################################### 
+// ********************************* RUTAS HTTP PARA FLUJO DE PAGO ***********************************
+//####################################################################################################     
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
