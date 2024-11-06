@@ -25,4 +25,3 @@ async function confirmTransaction(token2) {
 }
 
 export default confirmTransaction;
-

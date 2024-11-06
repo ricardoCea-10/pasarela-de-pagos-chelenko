@@ -17,7 +17,7 @@ async function getData() {
 
 }
 
-// Función para obtener data de base de datos por id:
+// Función para obtener data de Transbank de base de datos por id:
 async function getDataById(id) {
 
     try {
@@ -26,6 +26,21 @@ async function getDataById(id) {
         return response.data;
     } catch (error) {
         console.error('BANDERA 8. Error al obtener datos por id:', error);
+        return { error: 'Error al obtener datos por id' };
+
+    }
+
+}
+
+// Función para obtener data de reservas de base de datos por id:
+async function getDataReservationById(id) {
+
+    try {
+        let response = await axios.get(`http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/guests/${id}`);
+        console.log("BANDERA 14. response.data: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('BANDERA 14. Error al obtener datos por id:', error);
         return { error: 'Error al obtener datos por id' };
 
     }
@@ -88,4 +103,4 @@ async function deleteData(id) {
     }
 }
 
-export { getData, getDataById, postData, updateData, deleteData };
+export { getData, getDataById, getDataReservationById, postData, updateData, deleteData };
