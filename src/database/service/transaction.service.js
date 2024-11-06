@@ -12,8 +12,15 @@ async function newTransactionDB(guest, buyOrder, sessionId, amount) {
     
     await newTransaction.save();
     
-    console.log("BANDERA 31. nueva transacción en BD: ", newTransaction);
+    console.log("BANDERA 31. nueva transacción en BD ATLAS: ", newTransaction);
 
 }
 
-export {newTransactionDB};
+async function getTransactionDBFindOne(sessionId) {
+
+    const data = await Transaction.findOne({sessionId : sessionId});
+
+    return data;
+}
+
+export {newTransactionDB, getTransactionDBFindOne};

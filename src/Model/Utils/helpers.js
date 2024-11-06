@@ -46,10 +46,10 @@ function checkTransactionStatusCode(numeroRespuesta, tipoDePago) {
 }
 
 // Función para almacenar la estroctura de la data:
-function structureData(sessionId, confirmation) {
+function structureData(guest, confirmation) {
     
     let transactionData = {
-        guest : sessionId,
+        guest : guest,
         vci : confirmation.vci,
         amount : confirmation.amount,
         status : confirmation.status,

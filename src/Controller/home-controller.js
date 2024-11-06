@@ -8,7 +8,7 @@ import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
 import {checkTransactionStatusCode, structureData} from '../Model/Utils/helpers.js';
 import {validateDataClient, validateDataClientTransbank} from '../Model/Middlewares/validation-middlewares.js';
-import { newTransactionDB } from '../database/service/transaction.service.js';
+import { newTransactionDB, getTransactionDBFindOne } from '../database/service/transaction.service.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -85,24 +85,30 @@ function main() {
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
             if (req.tokenWs2) {
+                // Confirmamos la Transacción con el SDK de Transbank
                 let confirmation = await confirmTransaction(req.tokenWs2);
-                console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
+                if (confirmation !== undefined) {
+                    console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
+                } else {
+                    console.log('Transacción incorrecta. El pago no ha sido aprobado o rechazado.');
+                    throw new Error('Transacción incorrecta. El pago no ha sido aprobado o rechazado.')
+                }
 
                 // Recuperamos sessionId:
                 let sessionId = confirmation.session_id;
 
-                // Recuperar id de reserva de la base de datos, este debe coincidir con el sessionId:
-                let idGuesTDBAux = await getDataReservationById(sessionId);
-                let idGuesTDB = idGuesTDBAux._id;
+                // consultamos sessionId a la base de datos:
+                let dataDB = await getTransactionDBFindOne(sessionId);
                 console.log("");
-                console.log("BANDERA 20. sessionId (original Transbank):", sessionId);
-                console.log("BANDERA 21. idGuesTDB (base datos):", idGuesTDB);
+                console.log("BANDERA 40. dataDB (find one):", dataDB);
+                console.log("");
+                console.log("BANDERA 20. guest (base datos ATLAS):", dataDB.guest);
                 console.log("");
 
                 // generamos objeto con datos de respuesta
-                let transactionData = structureData(sessionId, confirmation);
+                let transactionData = structureData(dataDB.guest, confirmation);
 
-                // Enviamos objeto responseConfirmTransaction a base de datos:
+                // Enviamos objeto responseConfirmTransaction a base de datos api:
                 const data = await postData(transactionData);
 
                 let statusCodeTransbank = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
