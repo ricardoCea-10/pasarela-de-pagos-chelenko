@@ -7,6 +7,7 @@ import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Import
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
 import {checkTransactionStatusCode, structureData} from '../Model/Utils/helpers.js';
+import {validateDataClient, validateDataClientTransbank} from '../Model/Middlewares/validation-middlewares.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -43,19 +44,11 @@ function main() {
     */
     
     // Ruta para crear la transacción con Transbank
-    app.post('/iniciar-pago', async (req, res) => {
+    app.post('/iniciar-pago', validateDataClient, async (req, res) => {
         try {
-            
-            // Obtenemos datos desde formulario | sessionId debe ser igual a idGuesT
-            let buyOrder = req.body.buyOrder;
-            let sessionId = req.body.sessionId;
-            let amount = req.body.amount; 
-            let returnUrl = req.body.returnUrl;
-            let idGuesT = req.body.IdGuesT
-            
+                        
             // Llamamos a la función crear transacción
-            console.log("Datos recibidos del formulario: BuyOrder:", buyOrder, "| sessionId:", sessionId, "| amount:", amount, "| returnUrl:", returnUrl, "| IdGuest:", idGuesT);
-            let response = await createTransaction(buyOrder, sessionId, amount, returnUrl);
+            let response = await createTransaction(req.buyOrder, req.sessionId, req.amount, req.returnUrl);
 
             if (response && response.formAction && response.tokenWs) {
 
@@ -82,36 +75,13 @@ function main() {
     });
     
     // Ruta para manejar el retorno de Transbank
-    app.all('/retorno', async (req, res) => {
-
-        // Obtener parámetros del cuerpo o query, según el método
-        let tokenWs2 = req.body.token_ws || req.query.token_ws;
-        let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
-        let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
-        let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
-
-        // Creamos objeto con la posible data de Transbank:
-        let dataTransbank = {
-            token_ws: tokenWs2,
-            TBK_TOKEN: tbkToken,
-            TBK_ORDEN_COMPRA: tbkOrdenCompra,
-            TBK_ID_SESION: tbkIdSesion
-        }
-
-        // Mostrar los posibles datos recibidos para depuración
-        console.log("Request Body:", req.body);
-        console.log("Request Query:", req.query);
-        console.log("Mostramos datos recibidos por Transbank");
-        console.log('token_ws:', tokenWs2);
-        console.log('TBK_TOKEN:', tbkToken);
-        console.log('TBK_ORDEN_COMPRA:', tbkOrdenCompra);
-        console.log('TBK_ID_SESION:', tbkIdSesion);
-        console.log('');
-
+    app.all('/retorno', validateDataClientTransbank, async (req, res) => {
+        // Ejecutamos middleware de validación de datos de transbank
+        // Definimos un flujo de transaccion, dependiendo de los parametros de respuesta de Transbank
         try {
             // Si existe token_ws, la transacción fue exitosa o rechazada
-            if (tokenWs2) {
-                let confirmation = await confirmTransaction(tokenWs2);
+            if (req.tokenWs2) {
+                let confirmation = await confirmTransaction(req.tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
 
                 // Recuperamos sessionId:
@@ -131,27 +101,27 @@ function main() {
                 // Enviamos objeto responseConfirmTransaction a base de datos:
                 const data = await postData(transactionData);
 
-                let statusCode = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
-                console.log(statusCode);
+                let statusCodeTransbank = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
+                console.log(statusCodeTransbank);
                 res.status(200).json(transactionData);
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
-            else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
+            else if (req.tbkToken && req.tbkOrdenCompra && req.tbkIdSesion) {
 
                 console.log('Transacción abortada.');
                  // Checkeamos el estado de la Transacción abortada:
-                await checkTransaccion(tbkToken);
+                await checkTransaccion(req.tbkToken);
                 console.log("Transacción abortada.");
                 res.status(200).send('Transacción abortada.');
 
                 //res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
-            else if (tbkOrdenCompra && tbkIdSesion) {
+            else if (req.tbkOrdenCompra && req.tbkIdSesion) {
 
                 console.log('Transacción abortada por timeout.');                
                 res.status(200).send('Transacción abortada por timeout.');
-                
+
                 //res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
