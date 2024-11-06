@@ -5,7 +5,7 @@ import createTransaction, { amount as monto } from '../Model/Service/crear-trans
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
-import {getData, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
+import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -30,9 +30,6 @@ function main() {
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../views'));
 
-    // Objeto para almacenar el `idGuesT` para cada `tokenWs`
-    let transactionStore = {};
-
 //#################################################################################################### 
 // ********************************* RUTAS HTTP PARA FLUJO DE PAGO ***********************************
 //####################################################################################################     
@@ -48,16 +45,12 @@ function main() {
     app.post('/iniciar-pago', async (req, res) => {
         try {
             
-            // Obtenemos datos desde formulario
+            // Obtenemos datos desde formulario | sessionId debe ser igual a idGuesT
             let buyOrder = req.body.buyOrder;
             let sessionId = req.body.sessionId;
             let amount = req.body.amount; 
             let returnUrl = req.body.returnUrl;
             let idGuesT = req.body.IdGuesT
-
-            // Asociar el `idGuesT` al `sessionId` en el objeto `transactionStore`
-            transactionStore[sessionId] = idGuesT;
-            console.log("BANDERA 1 transactionStore:", transactionStore);
             
             // Llamamos a la función crear transacción
             console.log("Datos recibidos del formulario: BuyOrder:", buyOrder, "| sessionId:", sessionId, "| amount:", amount, "| returnUrl:", returnUrl, "| IdGuest:", idGuesT);
@@ -65,13 +58,14 @@ function main() {
 
             if (response && response.formAction && response.tokenWs) {
 
+                /*
                 // generamos objeto para pasar datos a formato JSON
                 let responseCreateTransaction = {
                     tokenWs: response.tokenWs,
                     formAction: response.formAction
                 }
-
-                // res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
+                res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
+                */
                 
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
@@ -89,24 +83,21 @@ function main() {
     // Ruta para manejar el retorno de Transbank
     app.all('/retorno', async (req, res) => {
 
-        let idGuesT; // Declaro idGuesT
-
         // Obtener parámetros del cuerpo o query, según el método
         let tokenWs2 = req.body.token_ws || req.query.token_ws;
         let tbkToken = req.body.TBK_TOKEN || req.query.TBK_TOKEN;
         let tbkOrdenCompra = req.body.TBK_ORDEN_COMPRA || req.query.TBK_ORDEN_COMPRA;
         let tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
 
-        // Creamos objeto con la data de Transbank:
+        // Creamos objeto con la posible data de Transbank:
         let dataTransbank = {
-            idGuesT: idGuesT,
             token_ws: tokenWs2,
             TBK_TOKEN: tbkToken,
             TBK_ORDEN_COMPRA: tbkOrdenCompra,
             TBK_ID_SESION: tbkIdSesion
         }
 
-        // Mostrar los datos recibidos para depuración
+        // Mostrar los posibles datos recibidos para depuración
         console.log("Request Body:", req.body);
         console.log("Request Query:", req.query);
         console.log("Mostramos datos recibidos por Transbank");
@@ -122,22 +113,20 @@ function main() {
                 let confirmation = await confirmTransaction(tokenWs2);
                 console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
 
-                // Recuperar "idGuesT" utilizando el "sessionId" (session_id) devuelto por Transbank 
-                idGuesT = transactionStore[confirmation.session_id];
-                if (idGuesT) {
-                    console.log("");
-                    console.log("BANDERA 2 transactionStore:", transactionStore);
-                    console.log("BANDERA 3 idGuesT:", idGuesT);
-                    console.log("");
-                } else {
-                    console.log("");
-                    console.log("No se encontró un 'idGuesT' asociado a este 'sessionId'.");
-                    console.log("");
-                }
+                // Recuperamos sessionId:
+                let sessionId = confirmation.session_id;
 
+                // Recuperar id de reserva de la base de datos, este debe coincidir con el sessionId:
+                let idGuesTDBAux = await getDataReservationById(sessionId);
+                let idGuesTDB = idGuesTDBAux._id;
+                console.log("");
+                console.log("BANDERA 20. sessionId (original Transbank):", sessionId);
+                console.log("BANDERA 21. idGuesTDB (base datos):", idGuesTDB);
+                console.log("");
+                
                 // generamos objeto con datos de respuesta
                 let responseConfirmTransaction = {
-                    guest : idGuesT,
+                    guest : sessionId,
                     vci : confirmation.vci,
                     amount : confirmation.amount,
                     status : confirmation.status,
@@ -204,42 +193,20 @@ function main() {
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
-                console.log('Transacción abortada.');
-                // Recuperar "idGuesT" utilizando el "sessionId" (TBK_ID_SESION) devuelto por Transbank:
-                idGuesT = transactionStore[dataTransbank.TBK_ID_SESION]; 
-                if (idGuesT) {
-                    console.log("");
-                    console.log("BANDERA 2 transactionStore:", transactionStore);
-                    console.log("BANDERA 3 idGuesT:", idGuesT);
-                    console.log("");
-                } else {
-                    console.log("");
-                    console.log("No se encontró un 'idGuesT' asociado a este 'sessionId'.");
-                    console.log("");
-                }
 
-                dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
-                res.status(200).json(dataTransbank);
+                console.log('Transacción abortada.');
+
+                // Checkeamos el estado de la Transacción abortada:
+                let estadoTransaccion = await checkTransaccion(tbkToken);
+                console.log("Estado de la transacción abortada:", estadoTransaccion);
+                res.status(200).send('Transacción abortada.');
                 //res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (tbkOrdenCompra && tbkIdSesion) {
-                console.log('Transacción abortada por timeout.');
-                // Recuperar "idGuesT" utilizando el "sessionId" (TBK_ID_SESION) devuelto por Transbank:
-                idGuesT = transactionStore[dataTransbank.TBK_ID_SESION]; 
-                if (idGuesT) {
-                    console.log("");
-                    console.log("BANDERA 2 transactionStore:", transactionStore);
-                    console.log("BANDERA 3 idGuesT:", idGuesT);
-                    console.log("");
-                } else {
-                    console.log("");
-                    console.log("No se encontró un 'idGuesT' asociado a este 'sessionId'.");
-                    console.log("");
-                }
 
-                dataTransbank.idGuesT = idGuesT; // asignamos idGuesT al valor de la clave en el objetodataTransbank
-                res.status(200).json(dataTransbank);
+                console.log('Transacción abortada por timeout.');                
+                res.status(200).send('Transacción abortada por timeout.');
                 //res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
@@ -248,13 +215,9 @@ function main() {
                 res.status(400).send('Error en el proceso de pago. No se encontraron parámetros.');
             }
 
-            // Una vez procesado, elimina el registro del transactionStore
-            transactionStore = {};
-             console.log("BANDERA 4 transactionStore ELIMINADO:", transactionStore);
-
         } catch (error) {
-            console.error('Error al confirmar la transacción:', error);
-            res.status(500).send('Error en el servidor al confirmar la transacción.');
+            console.error('Error al realizar la transacción:', error);
+            res.status(500).send('Error al realizar la transacción.');
         }
     });
 
