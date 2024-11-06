@@ -60,6 +60,8 @@ Ejecutar:
 - npm install express
 - npm i morgan
 - npm install ejs
+- npm i axios
+- npm install dotenv
 
 Luego agregar  "type" : "module" al archivo package.json para habilitar el uso de ES Modules.
 
