@@ -6,6 +6,7 @@ import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // I
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
+import {checkTransactionStatusCode} from '../Model/Utils/helpers.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -148,48 +149,9 @@ function main() {
                 // Enviamos objeto responseConfirmTransaction a base de datos:
                 const data = await postData(responseConfirmTransaction);
 
-                if (confirmation.response_code === 0) {
-                    let formaAbono;
-                    switch (confirmation.payment_type_code) {
-                        case 'VD':
-                            formaAbono = 'Débito';
-                            break;
-                        case 'VN':
-                            formaAbono = 'Crédito (Venta Normal)';
-                            break;
-                        case 'VC':
-                            formaAbono = 'Crédito (Venta en Cuotas)';
-                            break;
-                        case 'SI':
-                            formaAbono = 'Crédito (Cuotas Sin Interés)';
-                            break;
-                        case 'S2':
-                            formaAbono = 'Crédito (2 Cuotas Sin Interés)';
-                            break;
-                        case 'NC':
-                            formaAbono = 'Crédito (N Cuotas)';
-                            break;
-                        default:
-                            formaAbono = 'Desconocido';
-                    }
-                    console.log("El pago ha sido aprobado");
-                    res.status(200).json(responseConfirmTransaction);
-                    /*
-                    res.render('pago-aprobado', {
-                        titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
-                        tarjeta: confirmation.card_detail.card_number,
-                        monto: confirmation.amount,
-                        forma_abono: formaAbono, // Forma de abono interpretada
-                        fecha_hora: confirmation.transaction_date,
-                        codigo_transaccion: confirmation.buy_order,
-                        codigo_autorizacion: confirmation.authorization_code
-                    });
-                    */
-                } else {
-                    console.log("El pago ha sido rechazado");
-                    res.status(200).json(responseConfirmTransaction);
-                   // res.redirect('/pago-rechazado');
-                }
+                let statusCode = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
+                console.log(statusCode);
+                res.status(200).json(responseConfirmTransaction);
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
