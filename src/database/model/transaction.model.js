@@ -6,6 +6,12 @@ const transactionSchema = new mongoose.Schema({
         // type: mongoose.Schema.Types.ObjectId,
         type: String,
     },
+    tokenWs: {
+        type: String,
+    },
+    tbkToken: {
+        type: String,
+    },
     vci: {
         type: String,
     },

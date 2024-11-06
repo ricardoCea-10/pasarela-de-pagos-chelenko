@@ -51,9 +51,6 @@ async function getDataReservationById(id) {
 async function postData(data) {
 
     let dataTransbank = data;
-    console.log("BANDERA 5. dataTransbank (Base datos): ", dataTransbank);
-
-    
     try {
         const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
         if(response) {

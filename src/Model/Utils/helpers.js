@@ -71,5 +71,27 @@ function structureData(guest, confirmation) {
     return transactionData;
 }
 
-export {checkTransactionStatusCode, structureData};
+function structureDataAtlas(confirmation, token){
+
+    let transactionDataAtlas = {
+        vci : confirmation.vci,
+        status : confirmation.status,
+        cardDetail: {
+            cardNumber: confirmation.card_detail.card_number, // Campo actualizado
+            },
+        accountingDate : confirmation.accounting_date,
+        transactionDate : confirmation.transaction_date,
+        autorizationCode : confirmation.authorization_code, // Campo con error ortográfico
+        paymentTypeCode : confirmation.payment_type_code,
+        responseCode : confirmation.response_code,
+        installmentsAmount : confirmation.installments_amount,
+        installmentsNumber : confirmation.installments_number,
+        balance : confirmation.balance,
+        tokenWs : token
+    };
+
+    return transactionDataAtlas;
+}
+
+export {checkTransactionStatusCode, structureData, structureDataAtlas};
 
