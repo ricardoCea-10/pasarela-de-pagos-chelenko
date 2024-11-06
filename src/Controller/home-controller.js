@@ -139,11 +139,11 @@ function main() {
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {
 
                 console.log('Transacción abortada.');
-
-                // Checkeamos el estado de la Transacción abortada:
-                let estadoTransaccion = await checkTransaccion(tbkToken);
-                console.log("Estado de la transacción abortada:", estadoTransaccion);
+                 // Checkeamos el estado de la Transacción abortada:
+                await checkTransaccion(tbkToken);
+                console.log("Transacción abortada.");
                 res.status(200).send('Transacción abortada.');
+
                 //res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
@@ -151,6 +151,7 @@ function main() {
 
                 console.log('Transacción abortada por timeout.');                
                 res.status(200).send('Transacción abortada por timeout.');
+                
                 //res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
