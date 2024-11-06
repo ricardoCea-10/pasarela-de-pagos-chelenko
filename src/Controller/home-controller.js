@@ -6,7 +6,7 @@ import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // I
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
-import {checkTransactionStatusCode} from '../Model/Utils/helpers.js';
+import {checkTransactionStatusCode, structureData} from '../Model/Utils/helpers.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -124,34 +124,16 @@ function main() {
                 console.log("BANDERA 20. sessionId (original Transbank):", sessionId);
                 console.log("BANDERA 21. idGuesTDB (base datos):", idGuesTDB);
                 console.log("");
-                
+
                 // generamos objeto con datos de respuesta
-                let responseConfirmTransaction = {
-                    guest : sessionId,
-                    vci : confirmation.vci,
-                    amount : confirmation.amount,
-                    status : confirmation.status,
-                    buyOrder : confirmation.buy_order,
-                    sessionId : confirmation.session_id,
-                    cardDetail: {
-                        cardNumber: confirmation.card_detail.card_number, // Campo actualizado
-                      },
-                    accountingDate : confirmation.accounting_date,
-                    transactionDate : confirmation.transaction_date,
-                    autorizationCode : confirmation.authorization_code, // Campo con error ortográfico
-                    paymentTypeCode : confirmation.payment_type_code,
-                    responseCode : confirmation.response_code,
-                    installmentsAmount : confirmation.installments_amount,
-                    installmentsNumber : confirmation.installments_number,
-                    balance : confirmation.balance
-                }
+                let transactionData = structureData(sessionId, confirmation);
 
                 // Enviamos objeto responseConfirmTransaction a base de datos:
-                const data = await postData(responseConfirmTransaction);
+                const data = await postData(transactionData);
 
                 let statusCode = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
                 console.log(statusCode);
-                res.status(200).json(responseConfirmTransaction);
+                res.status(200).json(transactionData);
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (tbkToken && tbkOrdenCompra && tbkIdSesion) {

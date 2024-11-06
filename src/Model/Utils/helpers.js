@@ -45,5 +45,31 @@ function checkTransactionStatusCode(numeroRespuesta, tipoDePago) {
     }
 }
 
-export {checkTransactionStatusCode};
+// Función para almacenar la estroctura de la data:
+function structureData(sessionId, confirmation) {
+    
+    let transactionData = {
+        guest : sessionId,
+        vci : confirmation.vci,
+        amount : confirmation.amount,
+        status : confirmation.status,
+        buyOrder : confirmation.buy_order,
+        sessionId : confirmation.session_id,
+        cardDetail: {
+            cardNumber: confirmation.card_detail.card_number, // Campo actualizado
+            },
+        accountingDate : confirmation.accounting_date,
+        transactionDate : confirmation.transaction_date,
+        autorizationCode : confirmation.authorization_code, // Campo con error ortográfico
+        paymentTypeCode : confirmation.payment_type_code,
+        responseCode : confirmation.response_code,
+        installmentsAmount : confirmation.installments_amount,
+        installmentsNumber : confirmation.installments_number,
+        balance : confirmation.balance
+        
+    };
+    return transactionData;
+}
+
+export {checkTransactionStatusCode, structureData};
 
