@@ -1,8 +1,6 @@
-import pkg from 'transbank-sdk';
-const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } = pkg;
+import 'dotenv/config'; // Importa y configura dotenv sin usar require
 import express from 'express';
 import morgan from 'morgan';
-import axios from 'axios';
 import createTransaction, { amount as monto } from '../Model/Service/crear-transaccion.js'; // Importar función crear transaccion
 import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // Importar función confirmar transaccion
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
@@ -18,7 +16,7 @@ const __dirname = dirname(__filename);              // Obtener el nombre del dir
 
 function main() {
     const app = express();
-    const port = 3000;
+    const port = process.env.PORT || 3000;
 
     // Configurar Express para servir archivos estáticos (como CSS)
     app.use(express.static('public'));
@@ -34,6 +32,10 @@ function main() {
 
     // Objeto para almacenar el `idGuesT` para cada `tokenWs`
     let transactionStore = {};
+
+//#################################################################################################### 
+// ********************************* RUTAS HTTP PARA FLUJO DE PAGO ***********************************
+//####################################################################################################     
 
     // Ruta para la página inicial con el botón de pago
     app.get('/', (req, res) => {
@@ -67,12 +69,10 @@ function main() {
                     formAction: response.formAction
                 }
 
-                res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
+                // res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
                 
-                /*
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
-                */
                 
             } else {
                 // throw new Error('Error en la respuesta de Transbank');
@@ -247,7 +247,7 @@ function main() {
             }
 
             // Una vez procesado, elimina el registro del transactionStore
-             transactionStore = {};
+            transactionStore = {};
              console.log("BANDERA 4 transactionStore ELIMINADO:", transactionStore);
 
         } catch (error) {

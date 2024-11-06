@@ -41,8 +41,15 @@ async function postData(data) {
     
     try {
         const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
-        console.log("BANDERA 6. response.data: ", response.data);
+        if(response) {
+            console.log("BANDERA 6. Transacción almacenada en base de datos. response.data: ", response.data);
+
+        } else {
+            console.log("BANDERA 6. Error: Transacción no almacenada en base de datos. response.data: ", response.data);
+
+        }
         return response.data;
+
     } catch (error) {
         console.error('BANDERA 6. Error al enviar datos:', error);
         return { error: 'Error al enviar datos' };
