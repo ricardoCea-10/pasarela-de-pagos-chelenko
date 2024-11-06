@@ -1,7 +1,5 @@
-import Transaction from "../../database/model/transaction.model.js";
-
 // Creamos middleware de validacion de datos del cliente:
-const validateDataClient = async (req, res, next) => {
+const validateDataClient = (req, res, next) => {
 
     try {
         // Obtenemos datos desde formulario | sessionId debe ser igual a idGuesT
@@ -9,26 +7,13 @@ const validateDataClient = async (req, res, next) => {
         req.sessionId = req.body.sessionId;
         req.amount = req.body.amount; 
         req.returnUrl = req.body.returnUrl;
-        req.idGuesT = req.body.IdGuesT
+        req.guest = req.body.guest
 
-        if (!req.buyOrder || !req.sessionId || !req.amount || !req.returnUrl || !req.idGuesT) {
+        if (!req.buyOrder || !req.sessionId || !req.amount || !req.returnUrl || !req.guest) {
             console.log('Faltan datos en el formulario');
             return res.status(400).send('Faltan datos en el formulario');
         } else {
-            console.log("Datos recibidos del formulario: BuyOrder:", req.buyOrder, "| sessionId:", req.sessionId, "| amount:", req.amount, "| returnUrl:", req.returnUrl, "| IdGuest:", req.idGuesT);
-
-            // capturar datos y enviarlos a la base de datos antes de continuar
-
-           const newTransaction = await Transaction.create({
-                guest: req.idGuesT,
-                buyOrder: req.buyOrder,
-                sessionId: req.sessionId,
-                amount: req.amount
-            })
-
-            await newTransaction.save();
-
-            console.log("nueva transacción: ", newTransaction);
+            console.log("Datos recibidos del formulario: BuyOrder:", req.buyOrder, "| sessionId:", req.sessionId, "| amount:", req.amount, "| returnUrl:", req.returnUrl, "| IdGuest:", req.guest);
             
             next();
         }

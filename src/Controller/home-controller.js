@@ -8,6 +8,7 @@ import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
 import {checkTransactionStatusCode, structureData} from '../Model/Utils/helpers.js';
 import {validateDataClient, validateDataClientTransbank} from '../Model/Middlewares/validation-middlewares.js';
+import { newTransactionDB } from '../database/service/transaction.service.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
 import { dirname } from 'path';        // Importar `dirname` desde `path` para obtener el directorio
 import path from 'path';
@@ -46,7 +47,10 @@ function main() {
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', validateDataClient, async (req, res) => {
         try {
-                        
+            
+            // Guardamos la data inicial en nuestra base de datos Mongo DB Atlas:
+            await newTransactionDB(req.guest, req.buyOrder, req.sessionId, req.amount);
+
             // Llamamos a la función crear transacción
             let response = await createTransaction(req.buyOrder, req.sessionId, req.amount, req.returnUrl);
 
