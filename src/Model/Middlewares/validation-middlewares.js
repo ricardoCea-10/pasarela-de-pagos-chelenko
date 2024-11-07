@@ -7,20 +7,20 @@ const validateDataClient = (req, res, next) => {
         req.sessionId = req.body.sessionId;
         req.amount = req.body.amount; 
         req.returnUrl = req.body.returnUrl;
-        req.idGuesT = req.body.IdGuesT
+        req.guest = req.body.guest
 
-        if (!req.buyOrder || !req.sessionId || !req.amount || !req.returnUrl || !req.idGuesT) {
+        if (!req.buyOrder || !req.sessionId || !req.amount || !req.returnUrl || !req.guest) {
             console.log('Faltan datos en el formulario');
             return res.status(400).send('Faltan datos en el formulario');
         } else {
-            console.log("Datos recibidos del formulario: BuyOrder:", req.buyOrder, "| sessionId:", req.sessionId, "| amount:", req.amount, "| returnUrl:", req.returnUrl, "| IdGuest:", req.idGuesT);
+            
             next();
         }
 
     } catch (error) {
 
         console.error('Error al validar datos del cliente:', error);
-        res.status(500).send('Error al validar datos del cliente:'); 
+        res.status(500).send('Error al validar datos del cliente. Por favor, intente más tarde.'); 
     }
 };
 
@@ -36,8 +36,8 @@ const validateDataClientTransbank = (req, res, next) => {
         req.tbkIdSesion = req.body.TBK_ID_SESION || req.query.TBK_ID_SESION;
 
         if (!req.tokenWs2 && !req.tbkToken && !req.tbkOrdenCompra && !req.tbkIdSesion) {
-            console.log('No se encontraron parámetros de respuesta de Transbank');
-            return res.status(400).send('No se encontraron parámetros de respuesta de Transbank');
+            console.log('No se encontraron parámetros de respuesta de Transbank | Problemas en la redirección de regreso desde Transbank');
+            return res.status(400).send('No se encontraron parámetros de respuesta de Transbank. Contactar a administrador del sitio para verificar el pago');
 
         } else {
 
@@ -49,22 +49,12 @@ const validateDataClientTransbank = (req, res, next) => {
             TBK_ID_SESION: req.tbkIdSesion
             }
 
-            // Mostrar los posibles datos recibidos para depuración
-            console.log("Request Body:", req.body);
-            console.log("Request Query:", req.query);
-            console.log("Mostramos datos recibidos por Transbank");
-            console.log('token_ws:', req.tokenWs2);
-            console.log('TBK_TOKEN:', req.tbkToken);
-            console.log('TBK_ORDEN_COMPRA:', req.tbkOrdenCompra);
-            console.log('TBK_ID_SESION:', req.tbkIdSesion);
-            console.log('');
-
             next();
         } 
 
     } catch (error) {
         console.error('Error al validar datos de retorno de Transbank:', error);
-        res.status(500).send('Error al validar datos de retorno de Transbank:'); 
+        res.status(500).send('Error al validar datos de retorno de Transbank. Por favor, contactar al administrador del sitio'); 
     }
 };
 

@@ -73,6 +73,19 @@
 
 ===================================================================
 
+## Endpoints y Rutas
+
+| Endpoint             | Método | Descripción                                                                 |
+|----------------------|--------|-----------------------------------------------------------------------------|
+| `/iniciar-pago`      | POST   | Inicia el proceso de pago enviando la solicitud de transacción a Webpay.    |
+| `/estado-transaccion`| GET    | Consulta el estado de una transacción específica en Webpay.                 |
+| `/retorno`           | POST   | Recibe el `token_ws` y verifica el estado final de la transacción.          |
+| `/pago-aprobado`     | GET    | Muestra la vista de transacción aprobada si el `response_code` es `0`.      |
+| `/pago-rechazado`    | GET    | Muestra la vista de pago rechazado si el `response_code` no es `0`.         |
+| `/anular-transaccion`| POST   | Realiza la reversión o anulación de una transacción mediante el SDK de Transbank.|
+
+===================================================================
+
 ## Dependencias y Configuración
 
 Para ejecutar la aplicación, asegúrate de tener las siguientes dependencias instaladas:
@@ -93,3 +106,4 @@ npm install express
 npm i morgan
 npm install ejs
 npm i axios
+npm i mongoose
