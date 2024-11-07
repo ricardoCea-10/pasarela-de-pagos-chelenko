@@ -30,6 +30,7 @@ async function createTransaction(buyOrder, sessionId, amount, returnUrl) {
         
     } catch (error) {
         console.error("Error al crear la transacción:", error);
+        throw error;
     }
 }
 
