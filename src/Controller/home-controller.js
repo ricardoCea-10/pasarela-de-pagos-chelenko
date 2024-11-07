@@ -6,7 +6,7 @@ import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // I
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
-import {checkTransactionStatusCode, structureData, structureDataAtlas} from '../Model/Utils/helpers.js';
+import {checkTransactionStatusCode, structureData, structureDataAtlas, structureDataAtlasAbort} from '../Model/Utils/helpers.js';
 import {validateDataClient, validateDataClientTransbank} from '../Model/Middlewares/validation-middlewares.js';
 import { newTransactionDB, getTransactionDBFindOne, getTransactionDBFindByIdAndUpdate} from '../database/service/transaction.service.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
@@ -114,7 +114,7 @@ function main() {
                 console.log("BANDERA 45. Data para insertar en BD Api", transactionData);
                 
                 // Enviamos objeto transactionDataAtlas a base de datos Mongo Atlas:
-                const dataAtlas = getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlas);
+                const dataAtlas = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlas);
                 // Enviamos objeto transactionData a base de datos api:
                 const dataApi = await postData(transactionData);
 
@@ -125,9 +125,27 @@ function main() {
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
             else if (req.tbkToken && req.tbkOrdenCompra && req.tbkIdSesion) {
 
-                console.log('Transacción abortada.');
                  // Checkeamos el estado de la Transacción abortada:
-                await checkTransaccion(req.tbkToken);
+                let response = await checkTransaccion(req.tbkToken);
+                // Recuperamos sessionId:
+                let sessionId = response.session_id;
+
+                // consultamos sessionId a la base de datos:
+                let dataDB = await getTransactionDBFindOne(sessionId);
+
+                console.log("");
+                console.log("BANDERA 50. dataDB (find one):", dataDB);
+                console.log("");
+                console.log("BANDERA 51. guest (base datos ATLAS):", dataDB.guest);
+                console.log("");
+
+                // generamos objeto con datos de respuesta para BD Mongo Atlas
+                let transactionDataAtlasAbort = structureDataAtlasAbort(response, req.tbkToken);
+                console.log("BANDERA 52. Data para insertar en BD Atlas", transactionDataAtlasAbort);
+
+                // Enviamos objeto transactionDataAtlasAbort a base de datos Mongo Atlas:
+                const dataAtlas = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlasAbort);
+
                 console.log("Transacción abortada.");
                 res.status(200).send('Transacción abortada.');
 
@@ -153,10 +171,12 @@ function main() {
         }
     });
 
+    /*
     // Ruta para mostrar la pantalla de pago rechazado
     app.get('/pago-rechazado', (req, res) => {
         res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
     });
+    */
     
 //#################################################################################################### 
 // ********************************* METODOS DE TRANSBANK ********************************************

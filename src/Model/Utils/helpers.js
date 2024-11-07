@@ -93,5 +93,18 @@ function structureDataAtlas(confirmation, token){
     return transactionDataAtlas;
 }
 
-export {checkTransactionStatusCode, structureData, structureDataAtlas};
+function structureDataAtlasAbort(response, token){
+
+    let transactionDataAtlasAbort = {
+        status : response.status,
+        accountingDate : response.accounting_date,
+        transactionDate : response.transaction_date,
+        installmentsNumber : response.installments_number,
+        tokenWs : token
+    };
+
+    return transactionDataAtlasAbort;
+}
+
+export {checkTransactionStatusCode, structureData, structureDataAtlas, structureDataAtlasAbort};
 
