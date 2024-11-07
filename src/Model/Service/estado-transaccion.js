@@ -8,9 +8,9 @@ async function checkTransaccion(token) {
         // Crea una instancia de la transacción
         const tx = new WebpayPlus.Transaction(
             new Options(
-                IntegrationCommerceCodes.WEBPAY_PLUS, // Código de comercio
-                IntegrationApiKeys.WEBPAY,           // Clave de API
-                Environment.Integration               // Entorno de integración
+                IntegrationCommerceCodes.WEBPAY_PLUS,
+                IntegrationApiKeys.WEBPAY,
+                Environment.Integration
             )
         );
 
