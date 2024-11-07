@@ -6,7 +6,7 @@ import confirmTransaction from '../Model/Service/confirmar-transaccion.js'; // I
 import checkTransaccion from '../Model/Service/estado-transaccion.js'; // Importar la función de consulta de transacción
 import refundTransaccion from '../Model/Service/reversar-anular-transaccion.js';  // Importar la función de anular transacción
 import {getData, getDataReservationById, postData, getDataById, updateData, deleteData} from '../Model/Repository/data.js';
-import {checkTransactionStatusCode, structureData, structureDataAtlas, structureDataAtlasAbort} from '../Model/Utils/helpers.js';
+import {checkTransactionStatusCode, structureData, structureDataAbort, structureDataTimeOut, structureDataAtlas, structureDataAtlasAbort, structureDataAtlasTimeOut} from '../Model/Utils/helpers.js';
 import {validateDataClient, validateDataClientTransbank} from '../Model/Middlewares/validation-middlewares.js';
 import { newTransactionDB, getTransactionDBFindOne, getTransactionDBFindByIdAndUpdate} from '../database/service/transaction.service.js';
 import { fileURLToPath } from 'url';  // Importar `fileURLToPath` desde `url` para manejar ES Modules
@@ -108,7 +108,7 @@ function main() {
                 // generamos objeto con datos de respuesta para BD Mongo Atlas
                 let transactionDataAtlas = structureDataAtlas(confirmation, req.tokenWs2);
                 // generamos objeto con datos de respuesta para BD api
-                let transactionData = structureData(dataDB.guest, confirmation);
+                let transactionData = structureData(dataDB.guest, confirmation, req.tokenWs2);
                 
                 console.log("BANDERA 44. Data para insertar en BD Atlas", transactionDataAtlas);
                 console.log("BANDERA 45. Data para insertar en BD Api", transactionData);
@@ -141,23 +141,53 @@ function main() {
 
                 // generamos objeto con datos de respuesta para BD Mongo Atlas
                 let transactionDataAtlasAbort = structureDataAtlasAbort(response, req.tbkToken);
+                // generamos objeto con datos de respuesta para BD api
+                let transactionDataAbort = structureDataAbort(dataDB.guest, response, req.tbkToken);
+
                 console.log("BANDERA 52. Data para insertar en BD Atlas", transactionDataAtlasAbort);
+                console.log("BANDERA 53. Data para insertar en BD Api", transactionDataAbort);
 
                 // Enviamos objeto transactionDataAtlasAbort a base de datos Mongo Atlas:
-                const dataAtlas = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlasAbort);
+                const dataAtlasAbort = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlasAbort);
+                // Enviamos objeto transactionDataAbort a base de datos api:
+                const dataApiAbort = await postData(transactionDataAbort); 
 
                 console.log("Transacción abortada.");
                 res.status(200).send('Transacción abortada.');
 
-                //res.redirect('/pago-rechazado');
             }
             // Si existe TBK_ORDEN_COMPRA y TBK_ID_SESION, la transacción ha excedido el tiempo (timeout)
             else if (req.tbkOrdenCompra && req.tbkIdSesion) {
 
+                // Recuperamos el sessionId y buyOrder
+                let sessionId = req.tbkIdSesion;
+                let buyOrder = req.tbkOrdenCompra;
+
+                // consultamos sessionId a la base de datos:
+                let dataDB = await getTransactionDBFindOne(sessionId);
+
+                console.log("");
+                console.log("BANDERA 70. dataDB (find one):", dataDB);
+                console.log("");
+                console.log("BANDERA 71. guest (base datos ATLAS):", dataDB.guest);
+                console.log("");
+
+                // generamos objeto con datos de respuesta para BD Mongo Atlas
+                let transactionDataAtlasTimeOut = structureDataAtlasTimeOut();
+                // generamos objeto con datos de respuesta para BD api
+                let transactionDataTimeOut = structureDataTimeOut(dataDB.guest, sessionId, buyOrder);
+
+                console.log("BANDERA 72. Data para insertar en BD Atlas", transactionDataAtlasTimeOut);
+                console.log("BANDERA 73. Data para insertar en BD Api", transactionDataTimeOut);
+
+                // Enviamos objeto transactionDataAtlasTimeOut a base de datos Mongo Atlas:
+                const dataAtlasTimeOut = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlasTimeOut);
+                // Enviamos objeto transactionDataTimeOut a base de datos api:
+                const dataApiTimeOut = await postData(transactionDataTimeOut); 
+
                 console.log('Transacción abortada por timeout.');                
                 res.status(200).send('Transacción abortada por timeout.');
 
-                //res.redirect('/pago-rechazado');
             }
             // Si no se encuentra ninguna variable, indicar un error
             else {

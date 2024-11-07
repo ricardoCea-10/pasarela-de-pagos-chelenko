@@ -55,6 +55,9 @@ const transactionSchema = new mongoose.Schema({
     },
     balance: {
         type: Number,
+    },
+    message: {
+        type: String,
     }
 });
 

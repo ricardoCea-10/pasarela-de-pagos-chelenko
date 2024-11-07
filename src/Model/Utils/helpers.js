@@ -45,8 +45,8 @@ function checkTransactionStatusCode(numeroRespuesta, tipoDePago) {
     }
 }
 
-// Función para almacenar la estroctura de la data:
-function structureData(guest, confirmation) {
+// Función para almacenar la estructura de la data que irá posteriormente a la base datos api:
+function structureData(guest, confirmation, token) {
     
     let transactionData = {
         guest : guest,
@@ -65,12 +65,67 @@ function structureData(guest, confirmation) {
         responseCode : confirmation.response_code,
         installmentsAmount : confirmation.installments_amount,
         installmentsNumber : confirmation.installments_number,
-        balance : confirmation.balance
+        balance : confirmation.balance,
+        tokenWs : token,
+        TbkToken : ""
         
     };
     return transactionData;
 }
 
+// Función para almacenar la estructura de la data abortada que irá posteriormente a la base datos api:
+function structureDataAbort(guest, response, token){
+
+    let transactionDataAbort = {
+        guest : guest,
+        vci : "aborted",
+        amount : response.amount,
+        status : response.status,
+        buyOrder : response.buy_order,
+        sessionId : response.session_id,
+        cardDetail: {
+            cardNumber: "0000", 
+            },
+        accountingDate : response.accounting_date,
+        transactionDate : response.transaction_date,
+        autorizationCode : "0", // Campo con error ortográfico
+        paymentTypeCode : "VN",
+        responseCode : -3,
+        installmentsAmount : 0,
+        installmentsNumber : response.installments_number,
+        balance : 0,
+        tokenWs : "",
+        TbkToken : token
+    };
+    return transactionDataAbort;
+}
+
+// Función para almacenar la estructura de la data abortada por timeout, que irá posteriormente a la base datos api:
+function structureDataTimeOut(guest, sessionId, buyOrder){
+
+    let transactionDataTimeOut = {
+        guest : guest,
+        vci : "Timeout",
+        amount : 0,
+        status : "NULLIFIED",
+        buyOrder : buyOrder,
+        sessionId : sessionId,
+        cardDetail: {
+            cardNumber: "0000", 
+            },
+        accountingDate : "0000",
+        transactionDate : "0000",
+        autorizationCode : "0", // Campo con error ortográfico
+        paymentTypeCode : "VN",
+        responseCode : -3,
+        installmentsAmount : 0,
+        installmentsNumber : 0,
+        balance : 0
+    };
+    return transactionDataTimeOut;
+}
+
+// Función para almacenar la estructura de la data que irá posteriormente a la base datos Mongo Atlas:
 function structureDataAtlas(confirmation, token){
 
     let transactionDataAtlas = {
@@ -93,6 +148,7 @@ function structureDataAtlas(confirmation, token){
     return transactionDataAtlas;
 }
 
+// Función para almacenar la estructura de la data abortada que irá posteriormente a la base datos Mongo Atlas:
 function structureDataAtlasAbort(response, token){
 
     let transactionDataAtlasAbort = {
@@ -100,11 +156,22 @@ function structureDataAtlasAbort(response, token){
         accountingDate : response.accounting_date,
         transactionDate : response.transaction_date,
         installmentsNumber : response.installments_number,
-        tokenWs : token
+        tokenWs : token,
+        message : "Aborted"
     };
 
     return transactionDataAtlasAbort;
 }
 
-export {checkTransactionStatusCode, structureData, structureDataAtlas, structureDataAtlasAbort};
+// Función para almacenar la estructura de la data abortada por TimeOut que irá posteriormente a la base datos Mongo Atlas:
+function structureDataAtlasTimeOut(){
+
+    let transactionDataAtlasAbort = {
+        message : "Timeout"
+    };
+
+    return transactionDataAtlasAbort;
+}
+
+export {checkTransactionStatusCode, structureDataAbort, structureDataTimeOut, structureData, structureDataAtlas, structureDataAtlasAbort, structureDataAtlasTimeOut};
 
