@@ -51,11 +51,9 @@ async function postData(data) {
     try {
         const response = await axios.post("http://chelenko-data.sa-east-1.elasticbeanstalk.com/api/transbank", dataTransbank);
         if(response !== undefined) {
-            console.log("");
-            console.log("Transacción almacenada correctamente en base de datos.");
+            console.log("Transacción almacenada correctamente en base de datos Api.");
         } else {
-            console.log("");
-            console.log("Error: Transacción no almacenada en base de datos.");
+            console.log("Error: Transacción no almacenada en base de datos Api.");
         }
         return response.data;
 

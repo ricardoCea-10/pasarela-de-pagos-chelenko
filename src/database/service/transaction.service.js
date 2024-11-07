@@ -12,6 +12,16 @@ async function newTransactionDB(guest, buyOrder, sessionId, amount) {
         })
         await newTransaction.save();
 
+        if(newTransaction !== undefined) {
+            console.log('');
+            console.log('Transacción creada en BD Atlas (datos iniciales)');
+            console.log('');
+        } else {
+            console.log('');
+            console.log('Error al crear la transacción en BD Atlas (datos iniciales)');
+            console.log('');
+        }
+
     } catch (error) {
         console.error('Error al crear la transacción en BD Atlas:', error);
         throw error;
@@ -27,7 +37,7 @@ async function getTransactionDBFindOne(sessionId) {
         const data = await Transaction.findOne({sessionId : sessionId});
         return data;
     } catch (error) {
-        console.error('Error al buscar la transacción en BD Atlas:', error);
+        console.error('Error al buscar la transacción en BD Mongo Atlas:', error);
         throw error;
     }
 
@@ -39,6 +49,15 @@ async function getTransactionDBFindByIdAndUpdate (id, transactionDataAtlas){
     try {
         const getTransaction = await Transaction.findByIdAndUpdate(id, transactionDataAtlas, {new: true});
         await getTransaction.save();
+
+        if(getTransaction !== undefined) {
+            console.log('');
+            console.log('Transacción correctamente actualizada en BD Mongo Atlas');
+        } else {
+            console.log('');
+            console.log('Error al actualizar la transacción en BD Mongo Atlas');
+        }
+
         return getTransaction;
     } catch (error) {
         console.error('Error al actualizar la transacción en BD Atlas:', error);
