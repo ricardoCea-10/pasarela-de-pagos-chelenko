@@ -9,7 +9,7 @@ async function refundTransaccion(token, amount) {
 
         // Verifica si la transacción fue anulada exitosamente
         if (response) {
-            console.log('Transacción anulada exitosamente:', response);
+            console.log('Transacción anulada exitosamente');
         } else {
             console.log('Error al anular la transacción');
         }

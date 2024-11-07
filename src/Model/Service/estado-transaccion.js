@@ -3,8 +3,6 @@ const { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerc
 
 async function checkTransaccion(token) {
     try {
-        console.log('Consultando transacción con token:', token);
-        
         // Crea una instancia de la transacción
         const tx = new WebpayPlus.Transaction(
             new Options(
@@ -16,7 +14,6 @@ async function checkTransaccion(token) {
 
         // Consulta el estado de la transacción
         const response = await tx.status(token);
-        console.log('Estado de la transacción:', response);
         return response; // Devuelve la respuesta de la transacción
 
     } catch (error) {

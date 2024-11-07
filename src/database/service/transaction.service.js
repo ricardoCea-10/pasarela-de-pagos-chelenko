@@ -11,7 +11,6 @@ async function newTransactionDB(guest, buyOrder, sessionId, amount) {
             amount: amount
         })
         await newTransaction.save();
-        console.log("BANDERA 31. nueva transacción en BD ATLAS: ", newTransaction);
 
     } catch (error) {
         console.error('Error al crear la transacción en BD Atlas:', error);
@@ -40,7 +39,6 @@ async function getTransactionDBFindByIdAndUpdate (id, transactionDataAtlas){
     try {
         const getTransaction = await Transaction.findByIdAndUpdate(id, transactionDataAtlas, {new: true});
         await getTransaction.save();
-        console.log("BANDERA 32. getTransactionDBFindByIdAndUpdate: ", getTransaction);
         return getTransaction;
     } catch (error) {
         console.error('Error al actualizar la transacción en BD Atlas:', error);

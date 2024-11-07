@@ -36,13 +36,6 @@ function main() {
 //#################################################################################################### 
 // ********************************* RUTAS HTTP PARA FLUJO DE PAGO ***********************************
 //####################################################################################################     
-
-    /*
-    // Ruta para la página inicial con el botón de pago
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '../views', 'form.html'));
-    });
-    */
     
     // Ruta para crear la transacción con Transbank
     app.post('/iniciar-pago', validateDataClient, async (req, res) => {
@@ -55,15 +48,6 @@ function main() {
             let response = await createTransaction(req.buyOrder, req.sessionId, req.amount, req.returnUrl);
 
             if (response && response.formAction && response.tokenWs) {
-
-                /*
-                // generamos objeto para pasar datos a formato JSON
-                let responseCreateTransaction = {
-                    tokenWs: response.tokenWs,
-                    formAction: response.formAction
-                }
-                res.status(200).json(responseCreateTransaction); // Pasamos datos a front en formato JSON
-                */
                 
                 // Redirigir al usuario directamente al formulario de Webpay
                 res.redirect(`${response.formAction}?token_ws=${response.tokenWs}`);
@@ -88,9 +72,11 @@ function main() {
                 // Confirmamos la Transacción con el SDK de Transbank
                 let confirmation = await confirmTransaction(req.tokenWs2);
                 if (confirmation !== undefined) {
+                    console.log("");
                     console.log('Transacción correcta. El pago ha sido aprobado o rechazado.');
                 } else {
-                    console.log('Transacción incorrecta. El pago no ha sido aprobado o rechazado.');
+                    console.log("");
+                    console.log('Transacción incorrecta. El pago no ha sido aprobado o rechazado. No hay respuesta de confirmacion de Transbank');
                     throw new Error('Transacción incorrecta. El pago no ha sido aprobado o rechazado.')
                 }
 
@@ -99,27 +85,28 @@ function main() {
 
                 // consultamos sessionId a la base de datos:
                 let dataDB = await getTransactionDBFindOne(sessionId);
-                console.log("");
-                console.log("BANDERA 40. dataDB (find one):", dataDB);
-                console.log("");
-                console.log("BANDERA 20. guest (base datos ATLAS):", dataDB.guest);
-                console.log("");
 
                 // generamos objeto con datos de respuesta para BD Mongo Atlas
                 let transactionDataAtlas = structureDataAtlas(confirmation, req.tokenWs2);
                 // generamos objeto con datos de respuesta para BD api
                 let transactionData = structureData(dataDB.guest, confirmation, req.tokenWs2);
                 
-                console.log("BANDERA 44. Data para insertar en BD Atlas", transactionDataAtlas);
-                console.log("BANDERA 45. Data para insertar en BD Api", transactionData);
-                
                 // Enviamos objeto transactionDataAtlas a base de datos Mongo Atlas:
                 const dataAtlas = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlas);
                 // Enviamos objeto transactionData a base de datos api:
                 const dataApi = await postData(transactionData);
 
-                let statusCodeTransbankResponse = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
-                console.log(statusCodeTransbankResponse);
+                // Mensajes por consola
+                console.log("");
+                console.log("Data almacenada en Mongo DB Atlas: ", dataAtlas);
+                console.log("");
+                console.log("Data almacenada en DB Api: ", dataApi);
+                console.log("");
+
+                let statusTransbankResponse = checkTransactionStatusCode(confirmation.response_code, confirmation.payment_type_code);
+                console.log(statusTransbankResponse); // Mensaje status transaccion
+                console.log("");
+
                 res.status(200).json(transactionData);
             }
             // Si existe TBK_TOKEN, TBK_ORDEN_COMPRA y TBK_ID_SESION, el pago fue abortado
@@ -133,26 +120,25 @@ function main() {
                 // consultamos sessionId a la base de datos:
                 let dataDB = await getTransactionDBFindOne(sessionId);
 
-                console.log("");
-                console.log("BANDERA 50. dataDB (find one):", dataDB);
-                console.log("");
-                console.log("BANDERA 51. guest (base datos ATLAS):", dataDB.guest);
-                console.log("");
-
                 // generamos objeto con datos de respuesta para BD Mongo Atlas
                 let transactionDataAtlasAbort = structureDataAtlasAbort(response, req.tbkToken);
                 // generamos objeto con datos de respuesta para BD api
                 let transactionDataAbort = structureDataAbort(dataDB.guest, response, req.tbkToken);
-
-                console.log("BANDERA 52. Data para insertar en BD Atlas", transactionDataAtlasAbort);
-                console.log("BANDERA 53. Data para insertar en BD Api", transactionDataAbort);
 
                 // Enviamos objeto transactionDataAtlasAbort a base de datos Mongo Atlas:
                 const dataAtlasAbort = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlasAbort);
                 // Enviamos objeto transactionDataAbort a base de datos api:
                 const dataApiAbort = await postData(transactionDataAbort); 
 
+                // Mensajes por consola
+                console.log("");
+                console.log("Data almacenada en Mongo DB Atlas: ", dataAtlasAbort);
+                console.log("");
+                console.log("Data almacenada en DB Api: ", dataApiAbort);
+                console.log("");
                 console.log("Transacción abortada.");
+                console.log("");
+
                 res.status(200).send('Transacción abortada.');
 
             }
@@ -166,33 +152,32 @@ function main() {
                 // consultamos sessionId a la base de datos:
                 let dataDB = await getTransactionDBFindOne(sessionId);
 
-                console.log("");
-                console.log("BANDERA 70. dataDB (find one):", dataDB);
-                console.log("");
-                console.log("BANDERA 71. guest (base datos ATLAS):", dataDB.guest);
-                console.log("");
-
                 // generamos objeto con datos de respuesta para BD Mongo Atlas
                 let transactionDataAtlasTimeOut = structureDataAtlasTimeOut();
                 // generamos objeto con datos de respuesta para BD api
                 let transactionDataTimeOut = structureDataTimeOut(dataDB.guest, sessionId, buyOrder);
-
-                console.log("BANDERA 72. Data para insertar en BD Atlas", transactionDataAtlasTimeOut);
-                console.log("BANDERA 73. Data para insertar en BD Api", transactionDataTimeOut);
 
                 // Enviamos objeto transactionDataAtlasTimeOut a base de datos Mongo Atlas:
                 const dataAtlasTimeOut = await getTransactionDBFindByIdAndUpdate(dataDB._id, transactionDataAtlasTimeOut);
                 // Enviamos objeto transactionDataTimeOut a base de datos api:
                 const dataApiTimeOut = await postData(transactionDataTimeOut); 
 
-                console.log('Transacción abortada por timeout.');                
+                // Mensajes por consola
+                console.log("");
+                console.log("Data almacenada en Mongo DB Atlas: ", dataAtlasTimeOut);
+                console.log("");
+                console.log("Data almacenada en DB Api: ", dataApiTimeOut);
+                console.log("");
+                console.log('Transacción abortada por timeout.');  
+                console.log("");    
+
                 res.status(200).send('Transacción abortada por timeout.');
 
             }
             // Si no se encuentra ninguna variable, indicar un error
             else {
                 console.log('Error en el proceso de pago. No se encontraron parámetros.');
-                res.status(400).send('Error en el proceso de pago. No se encontraron parámetros.');
+                res.status(400).send('Error en el proceso de pago. No se encontraron parámetros. Por favor, contactar al administrador');
             }
 
         } catch (error) {
@@ -200,13 +185,6 @@ function main() {
             res.status(500).send('Error al realizar la transacción.');
         }
     });
-
-    /*
-    // Ruta para mostrar la pantalla de pago rechazado
-    app.get('/pago-rechazado', (req, res) => {
-        res.sendFile(path.join(__dirname, '../views', 'pago-rechazado.html'));  
-    });
-    */
     
 //#################################################################################################### 
 // ********************************* METODOS DE TRANSBANK ********************************************
@@ -218,7 +196,7 @@ function main() {
         const token = req.query.token; // Obtener el token de los parámetros de consulta (query)
         // confirmamos obtención de token
         if (token) {
-            console.log('Token recibido por query:', token);
+            console.log('Token recibido por query');
         } else {
             console.log('No se recibió token por query.');
         }
@@ -245,9 +223,9 @@ function main() {
 
         // confirmamos obtención de token
         if (token && amount) {
-            console.log('Token recibido por body:', token);
+            console.log('Token y amount recibidos');
         } else {
-            console.log('No se recibió token por body.');
+            console.log('No se recibió token y/o amount');
         }
 
         try {
@@ -272,6 +250,8 @@ function main() {
     // Consultar todas las transacciones
     app.get('/base-datos/consultar-transacciones', async (req, res) => {
 
+        console.log("Consulta de todas las transacciones...");
+
         try {
             let response = await getData();
             res.status(200).json(response);
@@ -286,7 +266,7 @@ function main() {
     app.get('/base-datos/consultar-transacciones/:id', async (req, res) => {
 
         let id = req.params.id;
-        console.log("Consulta de transacción por id:", id);
+        console.log("Consulta de transacción por id:", id, " ...");
 
         try {
             let response = await getDataById(id);
@@ -304,7 +284,7 @@ function main() {
         let id = req.params.id;
         let data = req.body;
 
-        console.log("BANDERA 11 req.body:", data, " & ", id);
+        console.log("Actualizamos transaccion por id...");
 
         try {
             let response = await updateData(id, data);
@@ -319,13 +299,16 @@ function main() {
     // Ruta para eliminar  datos usando un  id
     app.delete('/base-datos/eliminar-transaccion/:id', async (req, res) => {
     let id = req.params.id;
+
+    console.log("Eliminamos transaccion por id...");
+
     try {
         let response = await deleteData(id); // Llamada a la función de eliminar
-        console.log("bandera 15 :mensaje borrado correctamente")
+        console.log("Mensaje borrado correctamente");
         res.json(response);
     } catch (error) {
-        console.error('Error al eliminar datos de la transacción:', error);
-        res.status(500).send('Error al eliminar la transacción');
+        console.error('Error al eliminar datos de la transacción por id:', error);
+        res.status(500).send('Error al eliminar la transacción por id');
        }
     });
 

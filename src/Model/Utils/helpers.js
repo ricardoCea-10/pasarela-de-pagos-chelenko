@@ -28,20 +28,10 @@ function checkTransactionStatusCode(numeroRespuesta, tipoDePago) {
         }
 
         return `El pago ha sido aprobado. Forma de abono: ${formaAbono}`
-        /*
-        res.render('pago-aprobado', {
-            titular: 'Nombre del titular', // Aquí deberías reemplazar con el valor real si está disponible
-            tarjeta: confirmation.card_detail.card_number,
-            monto: confirmation.amount,
-            forma_abono: formaAbono, // Forma de abono interpretada
-            fecha_hora: confirmation.transaction_date,
-            codigo_transaccion: confirmation.buy_order,
-            codigo_autorizacion: confirmation.authorization_code
-        });
-        */
+
     } else {
         return `El pago ha sido rechazado`
-       // res.redirect('/pago-rechazado');
+       
     }
 }
 
